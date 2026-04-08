@@ -1,0 +1,2513 @@
+<!doctype html>
+<html lang="fr" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OCTOGO | Kit Manager RESET Interactif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&family=Share+Tech+Mono&family=Cairo:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              sd: "#0d1117",
+              sm: "#161b22",
+              sl: "#21262d",
+              sb: "#30363d",
+              of: "#f97316",
+              at: "#2dd4bf",
+            },
+            fontFamily: {
+              cond: ["Barlow Condensed", "sans-serif"],
+              sans: ["Barlow", "sans-serif"],
+              mono: ["Share Tech Mono", "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      body {
+        background: #0d1117;
+        color: #f0f6fc;
+        font-family: "Barlow", sans-serif;
+        overflow-x: hidden;
+      }
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #161b22;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #30363d;
+        border-radius: 2px;
+      }
+      .font-cond {
+        font-family: "Barlow Condensed", sans-serif;
+      }
+      .font-mono- {
+        font-family: "Share Tech Mono", monospace;
+      }
+      .hazard {
+        background: repeating-linear-gradient(
+          -45deg,
+          #f97316,
+          #f97316 8px,
+          transparent 8px,
+          transparent 16px
+        );
+        height: 3px;
+      }
+      input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 4px;
+        border-radius: 2px;
+        outline: none;
+        cursor: pointer;
+        background: linear-gradient(
+          90deg,
+          #f97316 var(--pct, 50%),
+          #21262d var(--pct, 50%)
+        );
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #f97316;
+        border: 2px solid #0d1117;
+        box-shadow: 0 0 8px rgba(249, 115, 22, 0.5);
+        cursor: pointer;
+        transition: transform 0.15s;
+      }
+      input[type="range"]::-webkit-slider-thumb:hover {
+        transform: scale(1.25);
+      }
+      .card-tool {
+        transition: all 0.2s;
+        cursor: pointer;
+      }
+      .card-tool:hover {
+        transform: translateY(-2px);
+        border-color: #2dd4bf !important;
+      }
+      .tool-fade {
+        animation: fadeSlide 0.3s ease;
+      }
+      @keyframes fadeSlide {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fiche-card {
+        transition: all 0.25s;
+        cursor: pointer;
+      }
+      .fiche-card:hover {
+        transform: translateY(-4px) scale(1.02);
+      }
+      .fiche-card.active {
+        border-color: #f97316 !important;
+        background: #1f1208 !important;
+      }
+      .step-item {
+        transition: all 0.2s;
+        cursor: pointer;
+      }
+      .step-item:hover {
+        background: #21262d !important;
+      }
+      .step-item.done {
+        border-color: #2dd4bf !important;
+        background: #041a18 !important;
+      }
+      .day-cell {
+        aspect-ratio: 1;
+        cursor: pointer;
+        transition: all 0.15s;
+        user-select: none;
+      }
+      .day-cell:hover:not(.checked) {
+        border-color: #f97316 !important;
+      }
+      .day-cell.checked {
+        background: #041a18 !important;
+        border-color: #2dd4bf !important;
+        color: #2dd4bf !important;
+      }
+      .kpi-input {
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 4px;
+        padding: 4px 8px;
+        color: #f0f6fc;
+        font-family: "Share Tech Mono", monospace;
+        width: 70px;
+        text-align: center;
+        font-size: 12px;
+        transition: border-color 0.15s;
+      }
+      .kpi-input:focus {
+        outline: none;
+        border-color: #f97316;
+      }
+      .script-box {
+        background: #080d12;
+        border-radius: 8px;
+        padding: 1rem;
+        font-family: "Share Tech Mono", monospace;
+        font-size: 11px;
+        color: #8b949e;
+        line-height: 1.8;
+        white-space: pre-wrap;
+      }
+      .btn-primary {
+        background: #f97316;
+        color: #0d1117;
+        font-family: "Barlow Condensed", sans-serif;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 0.5rem 1.2rem;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-size: 13px;
+        text-transform: uppercase;
+      }
+      .btn-primary:hover {
+        background: #fb923c;
+      }
+      .btn-ghost {
+        background: transparent;
+        color: #8b949e;
+        font-family: "Share Tech Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 1px;
+        padding: 0.4rem 0.9rem;
+        border-radius: 4px;
+        border: 1px solid #30363d;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-transform: uppercase;
+      }
+      .btn-ghost:hover {
+        color: #f0f6fc;
+        border-color: #8b949e;
+      }
+      .btn-teal {
+        background: transparent;
+        color: #2dd4bf;
+        font-family: "Share Tech Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 1px;
+        padding: 0.4rem 0.9rem;
+        border-radius: 4px;
+        border: 1px solid #2dd4bf;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-transform: uppercase;
+      }
+      .btn-teal:hover {
+        background: rgba(45, 212, 191, 0.1);
+      }
+      .notif {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        z-index: 999;
+        background: #161b22;
+        border: 1px solid #2dd4bf;
+        border-radius: 8px;
+        padding: 0.7rem 1.1rem;
+        font-family: "Share Tech Mono", monospace;
+        font-size: 0.75rem;
+        color: #2dd4bf;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        transform: translateY(4px);
+      }
+      .notif.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .progress-ring {
+        transition: stroke-dashoffset 0.5s ease;
+      }
+      .contrat-field {
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid #30363d;
+        color: #f0f6fc;
+        font-family: "Barlow", sans-serif;
+        font-size: 14px;
+        width: 100%;
+        padding: 4px 2px;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .contrat-field:focus {
+        border-color: #f97316;
+      }
+      .contrat-field::placeholder {
+        color: #30363d;
+      }
+      [dir="rtl"] body {
+        font-family: "Cairo", sans-serif;
+      }
+      [dir="rtl"] .font-cond {
+        font-family: "Cairo", sans-serif;
+      }
+      [dir="rtl"] .font-mono- {
+        font-family: "Cairo", sans-serif;
+      }
+      [dir="rtl"] .btn-ghost,
+      [dir="rtl"] .btn-primary,
+      [dir="rtl"] .btn-teal {
+        font-family: "Cairo", sans-serif;
+        letter-spacing: 0;
+      }
+      [dir="rtl"] .script-box,
+      [dir="rtl"] .kpi-input {
+        font-family: "Cairo", sans-serif;
+      }
+      [dir="rtl"] .lang-btn {
+        font-family: "Share Tech Mono", monospace;
+      }
+      .lang-btn {
+        font-family: "Share Tech Mono", monospace;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 6px 14px;
+        border-radius: 5px;
+        cursor: pointer;
+        border: 1px solid;
+        transition: all 0.15s;
+        text-transform: uppercase;
+        background: transparent;
+      }
+      .lang-btn.active {
+        background: #f97316;
+        color: #0d1117;
+        border-color: #f97316;
+      }
+      .lang-btn:not(.active) {
+        color: #8b949e;
+        border-color: #30363d;
+      }
+      .lang-btn:not(.active):hover {
+        color: #f0f6fc;
+        border-color: #8b949e;
+      }
+      @media (max-width: 768px) {
+        .main-grid {
+          grid-template-columns: 1fr !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen">
+    <div class="hazard w-full fixed top-0 z-50"></div>
+    <!-- Bouton retour flottant -->
+<a href="javascript:history.back()" 
+   style="position:fixed;bottom:24px;left:24px;z-index:9999;background:#161b22;border:1px solid #f97316;color:#f97316;padding:10px 18px;border-radius:50px;font-family:'Share Tech Mono',monospace;font-size:12px;text-decoration:none;display:flex;align-items:center;gap:8px;backdrop-filter:blur(8px);transition:all 0.2s"
+   onmouseover="this.style.background='#f97316';this.style.color='#0d1117'"
+   onmouseout="this.style.background='#161b22';this.style.color='#f97316'">
+  <span style="font-size:16px">←</span> 
+  <span id="back-floating" data-fr="Retour à l'offre" data-ar="العودة إلى العرض">Retour à l'offre</span>
+</a>
+    <div
+      style="
+        position: fixed;
+        top: 10px;
+        right: 16px;
+        z-index: 9998;
+        display: flex;
+        gap: 4px;
+      "
+      id="lang-switcher"
+    >
+      <button class="lang-btn active" id="btn-fr" onclick="setLang('fr')">
+        FR
+      </button>
+      <button class="lang-btn" id="btn-ar" onclick="setLang('ar')">ع</button>
+    </div>
+
+    <!-- HEADER -->
+    <header class="max-w-6xl mx-auto px-4 md:px-8 pt-8 pb-6 mt-1">
+  <div class="flex justify-between items-start">
+    <div>
+      <!-- Logo OCTOGO -->
+      <img src="octogo.png" alt="OCTOGO — Formation & Conseil"
+           style="width: clamp(60px, 12vw, 80px); margin-bottom: 0.75rem; filter: drop-shadow(0 0 12px rgba(249, 115, 22, 0.25)); display: block;" />
+      
+      <p
+        class="font-mono- text-[10px] text-sb tracking-[.25em] uppercase mb-1"
+        style="font-family: &quot;Share Tech Mono&quot;, monospace; color: #30363d;"
+      >
+        RST-IND-2026-001 · NEUROSCIENCES APPLIQUÉES · OCTOGO
+      </p>
+      <h1
+        class="font-cond text-4xl md:text-5xl font-black uppercase tracking-wider leading-none text-white"
+      >
+        KIT MANAGER <span style="color: #f97316">RESET</span>
+      </h1>
+      <p class="text-sm mt-1" id="app-subtitle" style="color: #8b949e">
+        Leadership Unifiant & Libérateur · 7 outils opérationnels
+      </p>
+    </div>
+    <div id="nav-badge" class="hidden">
+      <button
+        onclick="goHome()"
+        class="btn-ghost flex items-center gap-2 mt-2"
+      >
+        <span id="back-label">← RETOUR AU KIT</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+    <!-- MAIN -->
+    <main class="max-w-6xl mx-auto px-4 md:px-8 pb-16">
+      <!-- MENU -->
+      <div
+        id="main-menu"
+        class="main-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-2"
+      ></div>
+
+      <!-- TOOL -->
+      <div id="tool-view" class="hidden tool-fade">
+        <div id="tool-content" class="min-h-[500px]"></div>
+      </div>
+    </main>
+
+    <footer
+      class="max-w-6xl mx-auto px-8 py-6 border-t mt-8"
+      style="border-color: #21262d"
+    >
+      <div class="flex justify-between items-center opacity-30">
+        <p
+          style="
+            font-family: &quot;Share Tech Mono&quot;, monospace;
+            font-size: 10px;
+          "
+        >
+          © 2026 OCTOGO — PROPRIÉTÉ INTELLECTUELLE PROTÉGÉE
+        </p>
+        <p
+          style="
+            font-family: &quot;Share Tech Mono&quot;, monospace;
+            font-size: 10px;
+          "
+        >
+          RST-IND-2026-001
+        </p>
+      </div>
+    </footer>
+
+    <div class="notif" id="notif"></div>
+
+    <script>
+      // ══════════════════════════════════════════════════════
+      // DATA
+      // ══════════════════════════════════════════════════════
+      const LEVIERS = {
+        fr: [
+          {
+            k: "R",
+            label: "Reconnaissance",
+            desc: "Être vu, reconnu dans son effort et sa valeur individuelle",
+            color: "#f97316",
+          },
+          {
+            k: "E",
+            label: "Équité",
+            desc: "Être traité de manière juste et cohérente. Règles transparentes",
+            color: "#2dd4bf",
+          },
+          {
+            k: "S",
+            label: "Sens",
+            desc: "Comprendre pourquoi son travail compte dans la chaîne de valeur",
+            color: "#f97316",
+          },
+          {
+            k: "EA",
+            label: "Engagement / Apprentissage",
+            desc: "Progresser, apprendre, se développer. Ne pas stagner",
+            color: "#2dd4bf",
+          },
+          {
+            k: "T",
+            label: "Territoire / Autonomie",
+            desc: "Disposer d'une marge d'autonomie, être responsabilisé",
+            color: "#f97316",
+          },
+        ],
+        ar: [
+          {
+            k: "R",
+            label: "الاعتراف",
+            desc: "أن تُرى وتُعترف بجهودك وقيمتك الفردية",
+            color: "#f97316",
+          },
+          {
+            k: "E",
+            label: "العدالة",
+            desc: "المعاملة العادلة والمتسقة. قواعد شفافة للجميع",
+            color: "#2dd4bf",
+          },
+          {
+            k: "S",
+            label: "المعنى",
+            desc: "فهم سبب أهمية عملك في سلسلة القيمة",
+            color: "#f97316",
+          },
+          {
+            k: "EA",
+            label: "الانخراط / التعلم",
+            desc: "التقدم والتعلم والتطور. عدم الركود في التكرار",
+            color: "#2dd4bf",
+          },
+          {
+            k: "T",
+            label: "الحدود / الاستقلالية",
+            desc: "التمتع بهامش من الاستقلالية والمسؤولية على النطاق",
+            color: "#f97316",
+          },
+        ],
+      };
+      function L() {
+        return LEVIERS[lang];
+      }
+
+      // ══════════════════════════════════════════════════════
+      // SVG ICONS — Style neural OCTOGO
+      // ══════════════════════════════════════════════════════
+      const ICONS = {
+        // 01 · RADAR — Cercles concentriques + bras sweep + point central
+        radar: `<svg viewBox="0 0 44 44" width="42" height="42" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="22" cy="22" r="18" stroke="currentColor" stroke-width="1" stroke-dasharray="3 2.5" opacity=".35"/>
+    <circle cx="22" cy="22" r="11" stroke="currentColor" stroke-width="1.2" stroke-dasharray="3 2" opacity=".65"/>
+    <circle cx="22" cy="22" r="5" stroke="currentColor" stroke-width="1.4" opacity=".9"/>
+    <circle cx="22" cy="22" r="2.2" fill="currentColor"/>
+    <line x1="22" y1="22" x2="36" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="36" cy="12" r="2.2" fill="currentColor"/>
+    <line x1="22" y1="22" x2="33" y2="33" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".3"/>
+    <circle cx="33" cy="33" r="1.5" stroke="currentColor" stroke-width="1" opacity=".3"/>
+  </svg>`,
+
+        // 02 · RELAA — Synapse complète : nœud central + 5 bras + cercles terminaux
+        // (exactement le style des icônes dans l'image Gemini RELAA / Fiches)
+        relaa: `<svg viewBox="0 0 44 44" width="42" height="42" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="22" cy="22" r="4" fill="currentColor"/>
+    <line x1="22" y1="22" x2="22" y2="5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="22" cy="5" r="2.5" stroke="currentColor" stroke-width="1.6" fill="none"/>
+    <line x1="22" y1="22" x2="8" y2="10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="8" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6" fill="none"/>
+    <line x1="22" y1="22" x2="36" y2="10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="36" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6" fill="none"/>
+    <line x1="22" y1="22" x2="8" y2="34" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="8" cy="34" r="2.5" stroke="currentColor" stroke-width="1.6" fill="none"/>
+    <line x1="22" y1="22" x2="36" y2="34" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="36" cy="34" r="2.5" stroke="currentColor" stroke-width="1.6" fill="none"/>
+  </svg>`,
+
+        // 03 · FICHES — 3 cartes empilées + synapse centrale (5 cartes comme dans image Gemini)
+        fiches: `<svg viewBox="0 0 44 44" width="42" height="42" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="3" y="14" width="22" height="26" rx="2.5" stroke="currentColor" stroke-width="1.2" opacity=".3"/>
+    <rect x="8" y="9" width="22" height="26" rx="2.5" stroke="currentColor" stroke-width="1.4" opacity=".6"/>
+    <rect x="13" y="4" width="22" height="26" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
+    <line x1="18" y1="11" x2="30" y2="11" stroke="currentColor" stroke-width="1.2" opacity=".8"/>
+    <line x1="18" y1="15" x2="30" y2="15" stroke="currentColor" stroke-width="1.1" opacity=".6"/>
+    <line x1="18" y1="19" x2="26" y2="19" stroke="currentColor" stroke-width="1" opacity=".4"/>
+    <circle cx="35" cy="22" r="2.5" fill="currentColor" opacity=".6"/>
+    <line x1="35" y1="22" x2="42" y2="15" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity=".6"/>
+    <circle cx="42" cy="15" r="1.8" stroke="currentColor" stroke-width="1.2" fill="none" opacity=".6"/>
+  </svg>`,
+
+        // 04 · CONTRAT — Document + synapse signature + nœud
+        contrat: `<svg viewBox="0 0 44 44" width="42" height="42" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="6" y="3" width="26" height="34" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
+    <line x1="11" y1="11" x2="27" y2="11" stroke="currentColor" stroke-width="1.3"/>
+    <line x1="11" y1="16" x2="27" y2="16" stroke="currentColor" stroke-width="1.3"/>
+    <line x1="11" y1="21" x2="20" y2="21" stroke="currentColor" stroke-width="1.3"/>
+    <path d="M10 30 Q14 26 18 30 Q22 34 26 28" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle cx="35" cy="14" r="3.5" stroke="currentColor" stroke-width="1.6" fill="none"/>
+    <circle cx="35" cy="14" r="1.5" fill="currentColor"/>
+    <line x1="32" y1="14" x2="26" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    <line x1="35" y1="11" x2="35" y2="5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    <circle cx="35" cy="5" r="1.8" stroke="currentColor" stroke-width="1.3" fill="none"/>
+    <line x1="38" y1="11" x2="42" y2="7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    <circle cx="42" cy="7" r="1.8" stroke="currentColor" stroke-width="1.3" fill="none"/>
+  </svg>`,
+
+        // 05 · DASHBOARD — Radar mini + courbe de progression (style image Gemini tableau de bord)
+        dashboard: `<svg viewBox="0 0 44 44" width="42" height="42" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="22,4 36,14 31,30 13,30 8,14" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/>
+    <polygon points="22,11 29,17 27,25 17,25 15,17" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none" opacity=".6"/>
+    <polygon points="22,16 26,20 25,23 19,23 18,20" fill="currentColor" opacity=".35"/>
+    <line x1="22" y1="4" x2="22" y2="16" stroke="currentColor" stroke-width="1" opacity=".5"/>
+    <line x1="36" y1="14" x2="26" y2="20" stroke="currentColor" stroke-width="1" opacity=".5"/>
+    <line x1="31" y1="30" x2="25" y2="23" stroke="currentColor" stroke-width="1" opacity=".5"/>
+    <line x1="13" y1="30" x2="19" y2="23" stroke="currentColor" stroke-width="1" opacity=".5"/>
+    <line x1="8" y1="14" x2="18" y2="20" stroke="currentColor" stroke-width="1" opacity=".5"/>
+    <path d="M6 40 L14 35 L22 37 L30 31 L38 28" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle cx="38" cy="28" r="2.2" fill="currentColor"/>
+  </svg>`,
+
+        // 06 · FEEDBACK — Torche OCTOGO (style image Gemini scripts/feedback)
+        feedback: `<svg viewBox="0 0 44 44" width="42" height="42" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="22" cy="18" r="9" stroke="currentColor" stroke-width="1.8"/>
+    <circle cx="22" cy="18" r="4.5" stroke="currentColor" stroke-width="1.3" opacity=".7"/>
+    <circle cx="22" cy="18" r="2" fill="currentColor"/>
+    <line x1="22" y1="27" x2="22" y2="40" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="17" y1="35" x2="27" y2="35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    <line x1="22" y1="9" x2="22" y2="5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".6"/>
+    <line x1="22" y1="9" x2="18" y2="3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".5"/>
+    <line x1="22" y1="9" x2="26" y2="3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".5"/>
+    <line x1="13" y1="18" x2="7" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".5"/>
+    <circle cx="7" cy="14" r="1.8" stroke="currentColor" stroke-width="1.3" fill="none" opacity=".5"/>
+    <line x1="31" y1="18" x2="37" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".5"/>
+    <circle cx="37" cy="14" r="1.8" stroke="currentColor" stroke-width="1.3" fill="none" opacity=".5"/>
+  </svg>`,
+
+        // 07 · ROUTINES — Calendrier + synapse nœud d'ancrage (style image Gemini calendrier)
+        routines: `<svg viewBox="0 0 44 44" width="42" height="42" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="3" y="9" width="30" height="28" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
+    <line x1="3" y1="16" x2="33" y2="16" stroke="currentColor" stroke-width="1.3"/>
+    <line x1="10" y1="4" x2="10" y2="11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="26" y1="4" x2="26" y2="11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="10" cy="23" r="2" fill="currentColor"/>
+    <circle cx="18" cy="23" r="2" fill="currentColor" opacity=".5"/>
+    <rect x="23" y="21" width="4" height="4" rx="1" stroke="currentColor" stroke-width="1.2" opacity=".4"/>
+    <circle cx="10" cy="31" r="2" stroke="currentColor" stroke-width="1.3"/>
+    <path d="M15 31 L17 33 L22 28" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="38" cy="22" r="3.5" stroke="currentColor" stroke-width="1.6" fill="none"/>
+    <circle cx="38" cy="22" r="1.5" fill="currentColor"/>
+    <line x1="35" y1="22" x2="33" y2="22" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    <line x1="38" y1="19" x2="38" y2="13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    <circle cx="38" cy="13" r="1.8" stroke="currentColor" stroke-width="1.3" fill="none"/>
+    <line x1="41" y1="19" x2="44" y2="15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    <circle cx="44" cy="15" r="1.8" stroke="currentColor" stroke-width="1.3" fill="none"/>
+  </svg>`,
+      };
+      const IMAGES = {
+        radar:
+        "image/1.png",
+         relaa:
+         "image/2.png",
+         fiches:
+         "image/3.png",
+        contrat:
+         "image/4.png",
+        dashboard:
+         "image/5.png",
+        feedback:
+         "image/6.png",
+        routines:
+        "image/7.png",
+       };
+
+      const TOOLS_DATA = {
+        fr: [
+          {
+            id: "radar",
+            title: "Radar RESET",
+            color: "of",
+            desc: "Auto-évaluation neuro-comportementale des 5 leviers",
+          },
+          {
+            id: "relaa",
+            title: "Protocole RELAA",
+            color: "at",
+            desc: "Désamorçage des tensions en 5 étapes",
+          },
+          {
+            id: "fiches",
+            title: "Micro-Comportements",
+            color: "of",
+            desc: "5 fiches pratiques par levier RESET",
+          },
+          {
+            id: "contrat",
+            title: "Contrat Personnel",
+            color: "at",
+            desc: "Mes 3 engagements de leadership libérateur",
+          },
+          {
+            id: "dashboard",
+            title: "Tableau de Bord Impact",
+            color: "of",
+            desc: "Pilotage des KPI comportementaux T0→T3",
+          },
+          {
+            id: "feedback",
+            title: "Scripts Managériaux",
+            color: "at",
+            desc: "Feedback, recadrage & Brief RESET du matin",
+          },
+          {
+            id: "routines",
+            title: "Calendrier 30 Jours",
+            color: "of",
+            desc: "Ancrage des nouvelles habitudes RESET",
+          },
+        ],
+        ar: [
+          {
+            id: "radar",
+            title: "رادار RESET",
+            color: "of",
+            desc: "التقييم الذاتي العصبي السلوكي للروافع الخمسة",
+          },
+          {
+            id: "relaa",
+            title: "بروتوكول RELAA",
+            color: "at",
+            desc: "تفكيك التوترات في 5 خطوات",
+          },
+          {
+            id: "fiches",
+            title: "السلوكيات الدقيقة",
+            color: "of",
+            desc: "5 بطاقات عملية لكل رافعة RESET",
+          },
+          {
+            id: "contrat",
+            title: "العقد الشخصي",
+            color: "at",
+            desc: "التزاماتي الثلاثة في القيادة المحررة",
+          },
+          {
+            id: "dashboard",
+            title: "لوحة قيادة الأثر",
+            color: "of",
+            desc: "قيادة مؤشرات الأداء السلوكية T0→T3",
+          },
+          {
+            id: "feedback",
+            title: "النصوص الإدارية",
+            color: "at",
+            desc: "التغذية الراجعة وإعادة التأطير والإحاطة الصباحية",
+          },
+          {
+            id: "routines",
+            title: "تقويم 30 يومًا",
+            color: "of",
+            desc: "ترسيخ العادات الجديدة RESET",
+          },
+        ],
+      };
+      function TOOLS() {
+        return TOOLS_DATA[lang];
+      }
+
+      let lang = "fr";
+
+      function setLang(l) {
+        lang = l;
+        const isAr = l === "ar";
+        document.documentElement.dir = isAr ? "rtl" : "ltr";
+        document.documentElement.lang = l;
+        document.body.style.fontFamily = isAr
+          ? "'Cairo',sans-serif"
+          : "'Barlow',sans-serif";
+        document.getElementById("btn-fr").className =
+          "lang-btn" + (l === "fr" ? " active" : "");
+        document.getElementById("btn-ar").className =
+          "lang-btn" + (l === "ar" ? " active" : "");
+        const sub = document.getElementById("app-subtitle");
+        if (sub)
+          sub.textContent = isAr
+            ? "قيادة موحِّدة ومحرِّرة · 7 أدوات تشغيلية"
+            : "Leadership Unifiant & Libérateur · 7 outils opérationnels";
+        const backLbl = document.getElementById("back-label");
+        if (backLbl)
+          backLbl.textContent = isAr
+            ? "← العودة إلى المجموعة"
+            : "← RETOUR AU KIT";
+        updateProgress();
+        renderMenu();
+        // Re-render current tool if visible
+        const tv = document.getElementById("tool-view");
+        if (tv && !tv.classList.contains("hidden")) {
+          const active = [...visited].slice(-1)[0];
+          if (active) {
+            const r = {
+              radar,
+              relaa,
+              fiches,
+              contrat,
+              dashboard,
+              feedback,
+              routines,
+            };
+            r[active]();
+          }
+        }
+      }
+
+      const visited = new Set();
+      let radarChartInstance = null;
+      let dashChartScore = null;
+      let dashChartRelaa = null;
+
+      // Storage helpers
+      function load(key) {
+        try {
+          return JSON.parse(localStorage.getItem("rst_" + key)) || {};
+        } catch (e) {
+          return {};
+        }
+      }
+      function save(key, val) {
+        try {
+          localStorage.setItem("rst_" + key, JSON.stringify(val));
+        } catch (e) {}
+      }
+
+      // ══════════════════════════════════════════════════════
+      // ROUTER
+      // ══════════════════════════════════════════════════════
+      function goHome() {
+        document.getElementById("main-menu").classList.remove("hidden");
+        document.getElementById("tool-view").classList.add("hidden");
+        document.getElementById("nav-badge").classList.add("hidden");
+        document.getElementById("global-progress").classList.remove("hidden");
+        if (radarChartInstance) {
+          radarChartInstance.destroy();
+          radarChartInstance = null;
+        }
+        if (dashChartScore) {
+          dashChartScore.destroy();
+          dashChartScore = null;
+        }
+        if (dashChartRelaa) {
+          dashChartRelaa.destroy();
+          dashChartRelaa = null;
+        }
+        updateProgress();
+      }
+
+      function loadTool(id) {
+        visited.add(id);
+        document.getElementById("main-menu").classList.add("hidden");
+        document.getElementById("tool-view").classList.remove("hidden");
+        document.getElementById("nav-badge").classList.remove("hidden");
+        document.getElementById("global-progress").classList.add("hidden");
+        document.getElementById("tool-view").className = "tool-fade";
+        const c = document.getElementById("tool-content");
+        c.innerHTML = "";
+        const renderers = {
+          radar,
+          relaa,
+          fiches,
+          contrat,
+          dashboard,
+          feedback,
+          routines,
+        };
+        renderers[id]();
+        updateProgress();
+      }
+
+      function updateProgress() {
+        const pct = (visited.size / 7) * 100;
+        document.getElementById("progress-bar").style.width = pct + "%";
+        document.getElementById("progress-label").textContent =
+          lang === "ar"
+            ? `${visited.size} / 7 أدوات تمت مراجعتها`
+            : `${visited.size} / 7 outils consultés`;
+      }
+
+      function notify(msg) {
+        const n = document.getElementById("notif");
+        n.textContent = msg;
+        n.classList.add("show");
+        setTimeout(() => n.classList.remove("show"), 2200);
+      }
+
+      // ══════════════════════════════════════════════════════
+      // MENU
+      // ══════════════════════════════════════════════════════
+      function renderMenu() {
+        const m = document.getElementById("main-menu");
+        m.innerHTML = TOOLS()
+          .map((t) => {
+            const isVisited = visited.has(t.id);
+            const col = t.color === "of" ? "#f97316" : "#2dd4bf";
+            return `
+    <div onclick="loadTool('${t.id}')" class="card-tool relative overflow-hidden rounded-2xl border" 
+         style="background:#161b22;border-color:${isVisited ? "#2dd4bf" : "#30363d"}">
+      <div class="absolute top-2 right-2 z-10" style="font-family:'Share Tech Mono',monospace;font-size:8px;color:${isVisited ? "#2dd4bf" : "transparent"};background:${isVisited ? "rgba(13,17,23,.85)" : "transparent"};padding:2px 6px;border-radius:3px;border:${isVisited ? "1px solid #2dd4bf44" : "none"}">
+        ${isVisited ? (lang === "ar" ? "تمت المراجعة" : "CONSULTÉ") : ""}
+      </div>
+      <div style="width:100%;height:180px;overflow:hidden;border-radius:12px 12px 0 0;position:relative">
+        <img src="${IMAGES[t.id]}" alt="${t.title}" 
+             style="width:100%;height:100%;object-fit:cover;object-position:center top;transition:transform .4s ease;display:block"
+             onmouseover="this.style.transform='scale(1.04)'" 
+             onmouseout="this.style.transform='scale(1)'">
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,#161b22 100%)"></div>
+      </div>
+      <div style="padding:14px 18px 18px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <div style="width:3px;height:14px;background:${col};border-radius:2px;flex-shrink:0"></div>
+          <h3 class="font-cond text-lg font-bold uppercase tracking-wider text-white" style="line-height:1">${t.title}</h3>
+        </div>
+        <p class="text-xs" style="color:#8b949e;padding-left:9px">${t.desc}</p>
+      </div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,${col},transparent);opacity:${isVisited ? "1" : "0"};transition:opacity .2s"></div>
+    </div>`;
+          })
+          .join("");
+      }
+
+      // ══════════════════════════════════════════════════════
+      // TOOL 01 — RADAR RESET
+      // ══════════════════════════════════════════════════════
+      function radar() {
+        const data = load("radar");
+        const lv = L();
+        const tr =
+          lang === "ar"
+            ? {
+                num: "01",
+                total_lbl: "07",
+                title: "رادار RESET",
+                sub: "التقييم الذاتي للمدير · درجة من 10 لكل رافعة · /50 الإجمالي",
+                save: "حفظ",
+                reset: "إعادة ضبط",
+                score_lbl: "المجموع الكلي",
+                date_lbl: "التاريخ",
+                target: "الهدف",
+                my_profile: "ملف RESET الخاص بي",
+              }
+            : {
+                num: "01",
+                total_lbl: "07",
+                title: "RADAR RESET",
+                sub: "Auto-évaluation du manager · Score sur 10 par levier · /50 total",
+                save: "ENREGISTRER",
+                reset: "RÉINITIALISER",
+                score_lbl: "SCORE TOTAL",
+                date_lbl: "DATE",
+                target: "Cible",
+                my_profile: "Mon Profil RESET",
+              };
+        const c = document.getElementById("tool-content");
+        c.innerHTML = `
+  <div class="mb-8">
+    <p class="font-mono- text-xs mb-1" style="font-family:'Share Tech Mono',monospace;color:#f97316;letter-spacing:.2em">OUTIL ${tr.num} / ${tr.total_lbl}</p>
+    <h2 class="font-cond text-4xl font-black uppercase text-white">RADAR <span style="color:#f97316">RESET</span></h2>
+    <p class="mt-1" style="color:#8b949e;font-size:13px">${tr.sub}</p>
+  </div>
+  <div class="grid lg:grid-cols-2 gap-10">
+    <div>
+      <div class="space-y-7">
+        ${lv
+          .map(
+            (l) => `
+        <div>
+          <div class="flex justify-between items-end mb-2" style="flex-direction:${lang === "ar" ? "row-reverse" : "row"}">
+            <div>
+              <span class="font-mono- text-[10px] uppercase tracking-widest" style="font-family:'Share Tech Mono',monospace;color:${l.color}">${l.k === "EA" ? "E" : l.k}</span>
+              <h4 class="font-cond text-lg font-bold text-white leading-none">${l.label}</h4>
+              <p class="text-xs mt-0.5" style="color:#8b949e">${l.desc}</p>
+            </div>
+            <span class="font-cond text-3xl font-bold" id="val-${l.k}" style="color:${l.color}">${data[l.k] || 5}</span>
+          </div>
+          <input type="range" min="1" max="10" value="${data[l.k] || 5}" 
+                 style="width:100%;--pct:${(((data[l.k] || 5) - 1) / 9) * 100}%"
+                 oninput="updateRadar('${l.k}',this.value,'${l.color}',this)">
+          <div class="flex justify-between mt-1" style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#30363d">
+            <span>1</span><span>5</span><span>10</span>
+          </div>
+        </div>`,
+          )
+          .join("")}
+      </div>
+      <div class="mt-8 flex gap-3 flex-wrap">
+        <button onclick="saveRadar()" class="btn-primary">${tr.save}</button>
+        <button onclick="resetRadar()" class="btn-ghost">${tr.reset}</button>
+      </div>
+    </div>
+    <div class="rounded-2xl p-6 flex flex-col items-center" style="background:#080d12;border:1px solid #21262d">
+      <canvas id="radarCanvas" width="320" height="320"></canvas>
+      <div class="mt-4 flex items-center gap-4">
+        <div class="text-center">
+          <p class="font-mono- text-[10px]" style="font-family:'Share Tech Mono',monospace;color:#8b949e">${tr.score_lbl}</p>
+          <p class="font-cond text-3xl font-bold" id="total-score" style="color:#f97316">${[...lv].reduce((s, l) => s + (data[l.k] || 5), 0)} <span class="text-base font-normal" style="color:#8b949e">/ 50</span></p>
+        </div>
+        <div class="w-px h-10" style="background:#21262d"></div>
+        <div class="text-center">
+          <p class="font-mono- text-[10px]" style="font-family:'Share Tech Mono',monospace;color:#8b949e">${tr.date_lbl}</p>
+          <p style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#f0f6fc">${new Date().toLocaleDateString(lang === "ar" ? "ar-TN" : "fr-FR")}</p>
+        </div>
+      </div>
+    </div>
+  </div>`;
+        setTimeout(() => {
+          const ctx = document.getElementById("radarCanvas");
+          if (!ctx) return;
+          radarChartInstance = new Chart(ctx, {
+            type: "radar",
+            data: {
+              labels: lv.map((l) => l.label),
+              datasets: [
+                {
+                  label: tr.my_profile,
+                  data: lv.map((l) => data[l.k] || 5),
+                  backgroundColor: "rgba(249,115,22,.12)",
+                  borderColor: "#f97316",
+                  borderWidth: 2,
+                  pointBackgroundColor: "#f97316",
+                  pointBorderColor: "#0d1117",
+                  pointBorderWidth: 2,
+                  pointRadius: 5,
+                  pointHoverRadius: 7,
+                },
+                {
+                  label: tr.target,
+                  data: [8, 8, 8, 8, 8],
+                  backgroundColor: "rgba(45,212,191,.06)",
+                  borderColor: "rgba(45,212,191,.3)",
+                  borderWidth: 1,
+                  borderDash: [4, 4],
+                  pointRadius: 0,
+                },
+              ],
+            },
+            options: {
+              responsive: false,
+              animation: { duration: 400 },
+              scales: {
+                r: {
+                  min: 0,
+                  max: 10,
+                  grid: { color: "rgba(255,255,255,.04)" },
+                  angleLines: { color: "rgba(255,255,255,.04)" },
+                  pointLabels: {
+                    color: "#8b949e",
+                    font: {
+                      family: lang === "ar" ? "Cairo" : "Barlow Condensed",
+                      size: 12,
+                      weight: "bold",
+                    },
+                  },
+                  ticks: { display: false },
+                },
+              },
+              plugins: {
+                legend: {
+                  labels: {
+                    color: "#8b949e",
+                    font: { family: "Share Tech Mono", size: 10 },
+                  },
+                },
+              },
+            },
+          });
+        }, 50);
+      }
+
+      // TOOL 02 — PROTOCOLE RELAA
+      // ══════════════════════════════════════════════════════
+      function relaa() {
+        const tr =
+          lang === "ar"
+            ? {
+                num: "بروتوكول",
+                label: "RELAA",
+                sub: "5 خطوات لإدارة التوترات والتفاعلات في الوقت الفعلي · المدة: 2-4 دقائق",
+                timing: "التوقيت الموصى به",
+                progression: "تقدم الجلسة",
+                resetSession: "إعادة ضبط الجلسة",
+                total: "المجموع",
+                done: "تم",
+              }
+            : {
+                num: "OUTIL 02 / 07",
+                label: "",
+                sub: "5 étapes pour gérer les tensions et interactions en temps réel · Durée : 2–4 minutes",
+                timing: "TIMING RECOMMANDÉ",
+                progression: "PROGRESSION SESSION",
+                resetSession: "RÉINITIALISER SESSION",
+                total: "TOTAL",
+                done: "FAIT",
+              };
+        const steps =
+          lang === "ar"
+            ? [
+                {
+                  letter: "R",
+                  title: "التعرف",
+                  sub: "على الموقف / العاطفة",
+                  detail:
+                    'تسمية ما تلاحظه صراحةً في المتعاون. "أرى أنك تبدو قلقاً / متوتراً..." ينشط دائرة التعرف الاجتماعي ويقلل من التهديد.',
+                  color: "#f97316",
+                },
+                {
+                  letter: "E",
+                  title: "الإنصات",
+                  sub: "الفعّال + إعادة الصياغة",
+                  detail:
+                    'إنصات فعال دون مقاطعة. إعادة صياغة المرآة: "إذا فهمت جيداً، تشعر بـ..." يُصادق على المشاعر ويُبطئ الكورتيزول.',
+                  color: "#2dd4bf",
+                },
+                {
+                  letter: "L",
+                  title: "تحرير",
+                  sub: "التهديد (الحفاظ على المكانة)",
+                  detail:
+                    "اقتراح سيطرة صغيرة فورية: دع المتعاون يختار شيئاً ملموساً. يستعيد الشعور بالاستقلالية ويقلل الاستجابة للضغط.",
+                  color: "#f97316",
+                },
+                {
+                  letter: "A",
+                  title: "إضافة",
+                  sub: "المعنى (لماذا هذا مهم)",
+                  detail:
+                    'ربط الإجراء أو الموقف بمعنى أشمل: المهمة، التأثير، الفريق. "السبب في أهمية هذا هو..." ينشط دائرة الدوبامين.',
+                  color: "#2dd4bf",
+                },
+                {
+                  letter: "A",
+                  title: "تحفيز",
+                  sub: "/ منح الاستقلالية",
+                  detail:
+                    "تحديد الخطوة التالية الملموسة معاً. منح القرار إذا أمكن. يُعزز الالتزام وينشط الأوكسيتوسين الاجتماعي.",
+                  color: "#f97316",
+                },
+              ]
+            : [
+                {
+                  letter: "R",
+                  title: "Reconnaître",
+                  sub: "la situation / l'émotion",
+                  detail:
+                    "Nommer explicitement ce que vous observez chez le collaborateur. Activexle circuit de reconnaissance sociale et réduit la menace limbique.",
+                  color: "#f97316",
+                },
+                {
+                  letter: "E",
+                  title: "Écouter",
+                  sub: "activement + reformuler",
+                  detail:
+                    "Écoute active sans interrompre. Reformulez en miroir. Valide l'émotion et enclenche la décélération du cortisol.",
+                  color: "#2dd4bf",
+                },
+                {
+                  letter: "L",
+                  title: "Libérer",
+                  sub: "la menace (statut social)",
+                  detail:
+                    "Proposez un micro-contrôle immédiat. Restaure le sentiment d'autonomie et réduit la réponse au stress.",
+                  color: "#f97316",
+                },
+                {
+                  letter: "A",
+                  title: "Apporter",
+                  sub: "du Sens (pourquoi c'est important)",
+                  detail:
+                    "Relier l'action ou la situation à un sens plus large. Active le circuit dopaminergique de la signification.",
+                  color: "#2dd4bf",
+                },
+                {
+                  letter: "A",
+                  title: "Actionner",
+                  sub: "/ Accorder l'autonomie",
+                  detail:
+                    "Définir ensemble le prochain pas concret. Consolide l'engagement et active l'ocytocine sociale.",
+                  color: "#f97316",
+                },
+              ];
+        const timing_rows =
+          lang === "ar"
+            ? [
+                ["R — التعرف", "15–20 ث"],
+                ["E — الإنصات", "45–60 ث"],
+                ["L — التحرير", "20–30 ث"],
+                ["A — إضافة", "20–30 ث"],
+                ["A — تحفيز", "20–30 ث"],
+              ]
+            : [
+                ["R — Reconnaître", "15–20s"],
+                ["E — Écouter", "45–60s"],
+                ["L — Libérer", "20–30s"],
+                ["A — Apporter", "20–30s"],
+                ["A — Actionner", "20–30s"],
+              ];
+        const done = load("relaa_done");
+        const c = document.getElementById("tool-content");
+        const pct = Object.values(done).filter(Boolean).length;
+        c.innerHTML = `
+  <div class="mb-8">
+    <p class="font-mono- text-xs mb-1" style="font-family:'Share Tech Mono',monospace;color:#2dd4bf;letter-spacing:.2em">${lang === "ar" ? "الأداة 02 / 07" : "OUTIL 02 / 07"}</p>
+    <h2 class="font-cond text-4xl font-black uppercase text-white">${lang === "ar" ? "بروتوكول" : "PROTOCOLE"} <span style="color:#2dd4bf">RELAA</span></h2>
+    <p class="mt-1" style="color:#8b949e;font-size:13px">${tr.sub}</p>
+  </div>
+  <div class="grid lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-3">
+      ${steps
+        .map(
+          (s, i) => `
+      <div onclick="toggleStep(${i})" class="step-item rounded-xl p-5 border flex gap-5 items-start ${done[i] ? "done" : ""}" 
+           style="background:${done[i] ? "#041a18" : "#161b22"};border-color:${done[i] ? "#2dd4bf" : "#30363d"}">
+        <div class="flex-shrink-0 w-10 h-10 rounded-full border-2 flex items-center justify-center font-cond font-black text-lg"
+             style="border-color:${s.color};color:${s.color};background:${done[i] ? s.color + "22" : "transparent"}">
+          ${done[i] ? "✓" : i + 1}
+        </div>
+        <div class="flex-1">
+          <div class="flex items-baseline gap-2 mb-1" style="flex-wrap:wrap">
+            <span class="font-mono- text-sm font-bold" style="font-family:'Share Tech Mono',monospace;color:${s.color}">${s.letter}</span>
+            <span class="font-cond text-lg font-bold text-white uppercase">${s.title}</span>
+            <span class="text-xs" style="color:#8b949e">${s.sub}</span>
+          </div>
+          <p class="text-sm leading-relaxed" style="color:${done[i] ? "#8b949e" : "#30363d"}">${s.detail}</p>
+        </div>
+        <div class="flex-shrink-0 mt-1" style="color:${done[i] ? "#2dd4bf" : "#30363d"};font-size:11px;font-family:'Share Tech Mono',monospace">
+          ${done[i] ? tr.done : "○"}
+        </div>
+      </div>`,
+        )
+        .join("")}
+      <div class="flex gap-3 mt-4">
+        <button onclick="resetRelaa()" class="btn-ghost">${tr.resetSession}</button>
+      </div>
+    </div>
+    <div class="space-y-4">
+      <div class="rounded-2xl p-5 border" style="background:#080d12;border-color:#21262d">
+        <p class="font-mono- text-[10px] mb-3" style="font-family:'Share Tech Mono',monospace;color:#8b949e;letter-spacing:.15em">${tr.progression}</p>
+        <div class="flex items-center justify-center py-4">
+          <svg width="100" height="100" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#21262d" stroke-width="8"/>
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#2dd4bf" stroke-width="8"
+              stroke-dasharray="${2 * 3.14159 * 42}" stroke-dashoffset="${2 * 3.14159 * 42 * (1 - pct / 5)}"
+              stroke-linecap="round" transform="rotate(-90,50,50)"/>
+            <text x="50" y="50" text-anchor="middle" dominant-baseline="middle" 
+                  font-family="${lang === "ar" ? "Cairo" : "Barlow Condensed"}" font-size="22" font-weight="bold" fill="#f0f6fc">
+              ${pct}/5
+            </text>
+          </svg>
+        </div>
+      </div>
+      <div class="rounded-2xl p-5 border" style="background:#0a1f1d;border-color:#2dd4bf33">
+        <p class="font-cond text-sm font-bold uppercase mb-3" style="color:#2dd4bf">${tr.timing}</p>
+        <div class="space-y-2 text-xs" style="color:#8b949e;font-family:'Share Tech Mono',monospace">
+          ${timing_rows.map((r) => `<div class="flex justify-between"><span>${r[0]}</span><span style="color:#f97316">${r[1]}</span></div>`).join("")}
+          <div class="flex justify-between border-t pt-2 mt-2" style="border-color:#21262d">
+            <span style="color:#f0f6fc">${tr.total}</span><span style="color:#2dd4bf">${lang === "ar" ? "2–3 دقائق" : "2–3 min"}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+      }
+
+      // TOOL 03 — FICHES MICRO-COMPORTEMENTS
+      // ══════════════════════════════════════════════════════
+      function fiches() {
+        const cards_fr = [
+          {
+            k: "R",
+            label: "Reconnaissance",
+            color: "#f97316",
+            besoin:
+              "Être vu, reconnu dans son effort et sa valeur individuelle.",
+            absent:
+              "Retrait silencieux, baisse d'initiative, sentiment d'invisibilité.",
+            action:
+              "Feedback spécifique et immédiat. Nommer l'effort, pas seulement le résultat.",
+            technique: "Feedback de Reconnaissance Spécifique",
+            exemple:
+              "\"J'ai vu que tu as [action précise] aujourd'hui.\nC'est exactement ce genre d'initiative qui fait avancer l'équipe.\nMerci.\"",
+            neuro:
+              "Active le circuit de récompense dopaminergique · Réduit la réponse de menace sociale",
+          },
+          {
+            k: "E",
+            label: "Équité",
+            color: "#2dd4bf",
+            besoin:
+              "Être traité de manière juste et cohérente. Règles transparentes pour tous.",
+            absent:
+              "Comparaisons toxiques, conflits, sabotage passif entre collègues.",
+            action:
+              "Expliciter les critères de décision. Appliquer les règles sans exception.",
+            technique: "Critères Explicites & Cohérence Absolue",
+            exemple:
+              "\"Le critère pour [décision] c'est [règle claire].\nC'est la même règle pour tout le monde.\nSi tu as une question, je t'explique.\"",
+            neuro:
+              "Préserve l'insula de l'injustice · Réduit l'activation amygdalienne",
+          },
+          {
+            k: "S",
+            label: "Sens",
+            color: "#f97316",
+            besoin:
+              "Comprendre pourquoi son travail compte. Voir sa contribution dans la chaîne de valeur.",
+            absent: "Désengagement profond, automatisme, perte d'énergie.",
+            action:
+              "Relier le poste au produit final. Montrer l'impact client de chaque opération.",
+            technique: "45 Secondes de Sens",
+            exemple:
+              "\"La raison pour laquelle [tâche] est importante c'est que [impact client/équipe].\nTon poste, c'est le maillon qui [contribution].\nEst-ce que ça a du sens pour toi ?\"",
+            neuro: "Active le cortex préfrontal · Inhibe le mode automatique",
+          },
+          {
+            k: "EA",
+            label: "Engagement / Apprentissage",
+            color: "#2dd4bf",
+            besoin:
+              "Progresser, apprendre, se développer. Ne pas stagner dans la répétition.",
+            absent: "Résistance au changement, refus des rotations, rigidité.",
+            action:
+              "Proposer des micro-défis. Valoriser l'apprentissage, pas seulement la maîtrise.",
+            technique: "Micro-Défi Calibré",
+            exemple:
+              "\"Je voudrais te confier un nouveau périmètre cette semaine : [défi].\nC'est un peu au-dessus de ce que tu fais d'habitude, c'est fait exprès.\nComment tu veux t'organiser ?\"",
+            neuro:
+              "Libère de la dopamine d'exploration · Active le circuit d'apprentissage hippocampique",
+          },
+          {
+            k: "T",
+            label: "Territoire / Autonomie",
+            color: "#f97316",
+            besoin:
+              "Disposer d'une marge d'autonomie et être responsabilisé sur son périmètre.",
+            absent:
+              "Dépendance totale, attente d'ordres, surcharge du chef d'équipe.",
+            action:
+              "Déléguer des micro-décisions. Donner le contrôle sur l'organisation du poste.",
+            technique: "Délégation en 5 Niveaux",
+            exemple:
+              '"Sur [domaine précis], tu es autonome. Tu décides de [périmètre].\nTu n\'as pas besoin de me demander pour ça.\nFais-moi juste un retour à [date]."',
+            neuro:
+              "Active l'ocytocine de confiance · Réduit l'axe de stress HPA",
+          },
+        ];
+        const cards_ar = [
+          {
+            k: "R",
+            label: "الاعتراف",
+            color: "#f97316",
+            besoin: "أن تُرى وتُعترف بجهودك وقيمتك الفردية.",
+            absent: "التراجع الصامت، تراجع المبادرة، الشعور بالغياب.",
+            action: "تغذية راجعة محددة وفورية. تسمية الجهد وليس فقط النتيجة.",
+            technique: "التغذية الراجعة التقديرية المحددة",
+            exemple:
+              '"لاحظت أنك قمت بـ[فعل محدد] اليوم.\nهذا بالضبط هو نوع المبادرة التي تُحرك الفريق.\nشكراً."',
+            neuro:
+              "ينشط دائرة المكافأة الدوبامينية · يقلل استجابة التهديد الاجتماعي",
+          },
+          {
+            k: "E",
+            label: "العدالة",
+            color: "#2dd4bf",
+            besoin: "المعاملة العادلة والمتسقة. قواعد شفافة للجميع.",
+            absent: "مقارنات سامة، صراعات، تخريب سلبي بين الزملاء.",
+            action: "توضيح معايير القرار. تطبيق القواعد دون استثناء.",
+            technique: "المعايير الواضحة والاتساق المطلق",
+            exemple:
+              '"معيار [القرار] هو [قاعدة واضحة].\nهي نفس القاعدة للجميع.\nإذا كان لديك سؤال، سأوضح لك."',
+            neuro: "يحمي الإنسولا من الظلم · يقلل تنشيط اللوزة الدماغية",
+          },
+          {
+            k: "S",
+            label: "المعنى",
+            color: "#f97316",
+            besoin: "فهم سبب أهمية عملك. رؤية مساهمتك في سلسلة القيمة.",
+            absent: "انفصال عميق، أوتوماتيكية، فقدان الطاقة.",
+            action:
+              "ربط المنصب بالمنتج النهائي. إظهار التأثير على العميل في كل عملية.",
+            technique: "45 ثانية من المعنى",
+            exemple:
+              '"سبب أهمية [المهمة] هو [تأثيرها على العميل/الفريق].\nمنصبك هو الحلقة التي [مساهمة ملموسة].\nهل هذا منطقي بالنسبة لك؟"',
+            neuro: "ينشط قشرة الفص الجبهي · يثبط الوضع التلقائي",
+          },
+          {
+            k: "EA",
+            label: "الانخراط / التعلم",
+            color: "#2dd4bf",
+            besoin: "التقدم والتعلم والتطور. عدم الركود في التكرار.",
+            absent: "مقاومة التغيير، رفض التناوب، الجمود.",
+            action: "اقتراح تحديات صغيرة. تقدير التعلم وليس فقط الإتقان.",
+            technique: "التحدي الدقيق المُعايَر",
+            exemple:
+              '"أريد أن أعهد إليك بنطاق جديد هذا الأسبوع: [تحدي].\nهو أعلى قليلاً مما تفعله عادةً، وهذا مقصود.\nكيف تريد تنظيم نفسك؟"',
+            neuro: "يطلق دوبامين الاستكشاف · ينشط دائرة التعلم في الحُصين",
+          },
+          {
+            k: "T",
+            label: "الحدود / الاستقلالية",
+            color: "#f97316",
+            besoin: "التمتع بهامش من الاستقلالية والمسؤولية على النطاق.",
+            absent: "اعتماد كلي، انتظار الأوامر، إرهاق مسؤول الفريق.",
+            action: "تفويض قرارات صغيرة. إعطاء السيطرة على تنظيم المنصب.",
+            technique: "التفويض بـ5 مستويات",
+            exemple:
+              '"في [نطاق محدد]، أنت مستقل. تقرر [النطاق].\nلست بحاجة لسؤالي عن هذا.\nأخبرني فقط في [التاريخ]."',
+            neuro: "ينشط أوكسيتوسين الثقة · يقلل محور الإجهاد HPA",
+          },
+        ];
+        const tr =
+          lang === "ar"
+            ? {
+                num: "الأداة 03 / 07",
+                title: "السلوكيات",
+                accent: "الدقيقة",
+                sub: "انقر على بطاقة للاطلاع على التفاصيل · 5 روافع · 3 سلوكيات لكل منها",
+                besoin: "الحاجة الأساسية",
+                absent: "عند الغياب",
+                action: "الإجراء الإداري الرئيسي",
+                exemple: "مثال على العبارة",
+                neuro: "الآلية العصبية",
+                copy: "نسخ المثال",
+                placeholder: "اختر بطاقة من الأعلى",
+                cards: cards_ar,
+              }
+            : {
+                num: "OUTIL 03 / 07",
+                title: "FICHES",
+                accent: "MICRO-COMPORTEMENTS",
+                sub: "Cliquez sur une fiche pour voir le détail · 5 leviers · 3 comportements chacun",
+                besoin: "BESOIN FONDAMENTAL",
+                absent: "QUAND ABSENT",
+                action: "ACTION MANAGÉRIALE CLÉ",
+                exemple: "EXEMPLE DE PHRASE",
+                neuro: "MÉCANISME NEURO",
+                copy: "COPIER L'EXEMPLE",
+                placeholder: "Sélectionnez une fiche ci-dessus",
+                cards: cards_fr,
+              };
+        const sel = load("fiches_sel");
+        const c = document.getElementById("tool-content");
+        c.innerHTML = `
+  <div class="mb-8">
+    <p class="font-mono- text-xs mb-1" style="font-family:'Share Tech Mono',monospace;color:#f97316;letter-spacing:.2em">${tr.num}</p>
+    <h2 class="font-cond text-4xl font-black uppercase text-white">${tr.title} <span style="color:#f97316">${tr.accent}</span></h2>
+    <p class="mt-1" style="color:#8b949e;font-size:13px">${tr.sub}</p>
+  </div>
+  <div class="flex gap-4 flex-wrap mb-6">
+    ${tr.cards
+      .map(
+        (card, i) => `
+    <div onclick="selectFiche(${i})" class="fiche-card flex-1 min-w-[100px] rounded-xl p-4 border text-center ${sel.i === i ? "active" : ""}"
+         style="background:${sel.i === i ? "#1f1208" : "#161b22"};border-color:${sel.i === i ? card.color : "#30363d"}">
+      <div class="font-mono- text-xl font-bold mb-1" style="font-family:'Share Tech Mono',monospace;color:${card.color}">${card.k === "EA" ? "E" : card.k}</div>
+      <div class="font-cond font-bold text-sm uppercase text-white leading-tight">${card.label}</div>
+    </div>`,
+      )
+      .join("")}
+  </div>
+  <div id="fiche-detail" class="rounded-2xl p-8 border" style="background:#161b22;border-color:#30363d;min-height:280px">
+    ${
+      sel.i !== undefined
+        ? renderFicheDetail(tr.cards[sel.i], tr)
+        : `
+    <div class="flex items-center justify-center h-64" style="color:#30363d">
+      <div class="text-center">
+        <div class="text-4xl mb-3">◈</div>
+        <p style="font-family:'Share Tech Mono',monospace;font-size:11px">${tr.placeholder}</p>
+      </div>
+    </div>`
+    }
+  </div>`;
+      }
+
+      function renderFicheDetail(card, tr) {
+        const dispKey = card.k === "EA" ? "E" : card.k;
+        return `
+  <div class="grid md:grid-cols-2 gap-8">
+    <div>
+      <div class="flex items-baseline gap-3 mb-5">
+        <span class="font-mono- text-4xl font-black" style="font-family:'Share Tech Mono',monospace;color:${card.color}">${dispKey}</span>
+        <h3 class="font-cond text-3xl font-bold text-white uppercase leading-tight">${card.label}</h3>
+      </div>
+      <div class="space-y-3">
+        <div class="rounded-lg p-4" style="background:#080d12;border-left:${lang === "ar" ? "none" : "3px solid " + card.color};border-right:${lang === "ar" ? "3px solid " + card.color : "none"}">
+          <p class="font-mono- text-[9px] mb-1.5" style="font-family:'Share Tech Mono',monospace;color:${card.color};letter-spacing:.18em">${tr.besoin}</p>
+          <p class="text-sm leading-relaxed" style="color:#f0f6fc">${card.besoin}</p>
+        </div>
+        <div class="rounded-lg p-4" style="background:#080d12;border-left:${lang === "ar" ? "none" : "3px solid #30363d"};border-right:${lang === "ar" ? "3px solid #30363d" : "none"}">
+          <p class="font-mono- text-[9px] mb-1.5" style="font-family:'Share Tech Mono',monospace;color:#8b949e;letter-spacing:.18em">${tr.absent}</p>
+          <p class="text-sm leading-relaxed" style="color:#8b949e">${card.absent}</p>
+        </div>
+        <div class="rounded-lg p-4" style="background:#041a18;border-left:${lang === "ar" ? "none" : "3px solid #2dd4bf"};border-right:${lang === "ar" ? "3px solid #2dd4bf" : "none"}">
+          <p class="font-mono- text-[9px] mb-1.5" style="font-family:'Share Tech Mono',monospace;color:#2dd4bf;letter-spacing:.18em">${tr.action}</p>
+          <p class="text-sm font-medium leading-relaxed" style="color:#f0f6fc">${card.action}</p>
+        </div>
+      </div>
+      <div class="mt-4 rounded-lg px-4 py-2 inline-block" style="background:${card.color}22;border:1px solid ${card.color}44">
+        <p class="font-mono- text-xs font-bold" style="font-family:'Share Tech Mono',monospace;color:${card.color}">${card.technique}</p>
+      </div>
+    </div>
+    <div>
+      <p class="font-mono- text-xs mb-3" style="font-family:'Share Tech Mono',monospace;color:#8b949e;letter-spacing:.15em">${tr.exemple}</p>
+      <div class="script-box mb-4">${card.exemple}</div>
+      <p class="font-mono- text-xs mb-3" style="font-family:'Share Tech Mono',monospace;color:#8b949e;letter-spacing:.15em">${tr.neuro}</p>
+      <div class="rounded-lg p-3 text-xs leading-relaxed" style="background:#080d12;border:1px solid #21262d;color:#8b949e;font-family:'Share Tech Mono',monospace">
+        ${card.neuro}
+      </div>
+      <button onclick="navigator.clipboard.writeText(this.dataset.ex).then(()=>notify('${lang === "ar" ? "تم النسخ ✓" : "Copié ✓"}')).catch(()=>{const t=document.createElement('textarea');t.value=this.dataset.ex;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);notify('${lang === "ar" ? "تم النسخ ✓" : "Copié ✓"}')})" 
+              data-ex="${card.exemple.replace(/"/g, "&quot;")}" class="btn-teal mt-4">${tr.copy}</button>
+    </div>
+  </div>`;
+      }
+
+      // TOOL 04 — CONTRAT PERSONNEL
+      // ══════════════════════════════════════════════════════
+      function contrat() {
+        const data = load("contrat");
+        const lv = L();
+        const tr =
+          lang === "ar"
+            ? {
+                num: "الأداة 04 / 07",
+                title: "عقدي",
+                accent: "RESET",
+                desc: "قيادة موحِّدة ومحرِّرة · التزاماتي الملموسة",
+                nom: "الاسم الكامل",
+                date: "التاريخ",
+                intro:
+                  "أتعهد بتفعيل الروافع الخمس RESET وبروتوكول RELAA يومياً، في خدمة قيادة تُوحِّد وتُحرِّر طاقة فريقي.",
+                engTitle: "التزاماتي الثلاثة الملموسة",
+                levier: "الرافعة ذات الأولوية",
+                choose: "اختر رافعة...",
+                eng: "التزامي",
+                ph_eng: "صِف التزامك الملموس والقابل للقياس...",
+                kpi: "مؤشر النجاح",
+                ph_kpi: "كيف ستقيس هذا التغيير؟",
+                sign: "توقيع المدير",
+                save: "حفظ",
+                print: "طباعة",
+              }
+            : {
+                num: "OUTIL 04 / 07",
+                title: "MON CONTRAT",
+                accent: "RESET",
+                desc: "Leadership Unifiant & Libérateur · Mes engagements concrets",
+                nom: "NOM / PRÉNOM",
+                date: "DATE",
+                intro:
+                  "Je m'engage à activer les 5 leviers RESET et le protocole RELAA au quotidien, au service d'un leadership qui unit et libère le potentiel de mon équipe.",
+                engTitle: "MES 3 ENGAGEMENTS CONCRETS",
+                levier: "LEVIER PRIORITAIRE",
+                choose: "Choisir un levier…",
+                eng: "MON ENGAGEMENT",
+                ph_eng: "Décrivez votre engagement concret et mesurable…",
+                kpi: "INDICATEUR DE SUCCÈS",
+                ph_kpi: "Comment mesurerez-vous ce changement ?",
+                sign: "SIGNATURE DU MANAGER",
+                save: "SAUVEGARDER",
+                print: "IMPRIMER",
+              };
+        const c = document.getElementById("tool-content");
+        c.innerHTML = `
+  <div class="mb-8">
+    <p class="font-mono- text-xs mb-1" style="font-family:'Share Tech Mono',monospace;color:#2dd4bf;letter-spacing:.2em">${tr.num}</p>
+    <h2 class="font-cond text-4xl font-black uppercase text-white">${tr.title} <span style="color:#2dd4bf">${tr.accent}</span></h2>
+    <p class="mt-1" style="color:#8b949e;font-size:13px">${tr.desc}</p>
+  </div>
+  <div class="rounded-2xl border overflow-hidden" style="border-color:#30363d">
+    <div class="px-10 py-8 border-b" style="background:#080d12;border-color:#21262d">
+      <div class="flex justify-between items-start" style="flex-direction:${lang === "ar" ? "row-reverse" : "row"}">
+        <div>
+          <p class="font-mono- text-[10px] mb-1" style="font-family:'Share Tech Mono',monospace;color:#8b949e">${tr.nom}</p>
+          <input class="contrat-field font-cond text-2xl font-bold" placeholder="${lang === "ar" ? "اسمك الكامل" : "Votre nom et prénom"}" 
+                 id="c-nom" value="${data.nom || ""}" style="max-width:300px">
+        </div>
+        <div style="text-align:${lang === "ar" ? "left" : "right"}">
+          <p class="font-mono- text-[10px] mb-1" style="font-family:'Share Tech Mono',monospace;color:#8b949e">${tr.date}</p>
+          <input class="contrat-field" id="c-date" value="${data.date || new Date().toLocaleDateString(lang === "ar" ? "ar-TN" : "fr-FR")}" style="max-width:120px">
+        </div>
+      </div>
+      <p class="mt-4 text-sm leading-relaxed" style="color:#8b949e">${tr.intro}</p>
+    </div>
+    <div class="px-10 py-8" style="background:#161b22">
+      <p class="font-mono- text-xs mb-6" style="font-family:'Share Tech Mono',monospace;color:#f97316;letter-spacing:.2em">${tr.engTitle}</p>
+      <div class="space-y-6">
+        ${[1, 2, 3]
+          .map(
+            (n) => `
+        <div class="flex gap-5 items-start" style="flex-direction:${lang === "ar" ? "row-reverse" : "row"}">
+          <div class="flex-shrink-0 w-10 h-10 rounded-full border-2 flex items-center justify-center font-cond font-black text-lg"
+               style="border-color:#f97316;color:#f97316">0${n}</div>
+          <div class="flex-1">
+            <div class="mb-2">
+              <p class="font-mono- text-[10px] mb-1" style="font-family:'Share Tech Mono',monospace;color:#8b949e">${tr.levier}</p>
+              <select id="c-levier${n}" class="contrat-field text-sm" style="background:#080d12;max-width:220px;cursor:pointer">
+                <option value="">${tr.choose}</option>
+                ${lv.map((l) => `<option value="${l.k}" ${data["levier" + n] === l.k ? "selected" : ""}>${l.k === "EA" ? "E" : l.k} — ${l.label}</option>`).join("")}
+              </select>
+            </div>
+            <p class="font-mono- text-[10px] mb-1" style="font-family:'Share Tech Mono',monospace;color:#8b949e">${tr.eng}</p>
+            <textarea id="c-eng${n}" class="contrat-field text-sm w-full resize-none" rows="2"
+                      placeholder="${tr.ph_eng}">${data["eng" + n] || ""}</textarea>
+            <p class="font-mono- text-[10px] mt-2 mb-1" style="font-family:'Share Tech Mono',monospace;color:#8b949e">${tr.kpi}</p>
+            <input id="c-kpi${n}" class="contrat-field text-sm w-full" 
+                   placeholder="${tr.ph_kpi}" value="${data["kpi" + n] || ""}">
+          </div>
+        </div>`,
+          )
+          .join("")}
+      </div>
+    </div>
+    <div class="px-10 py-6 flex justify-between items-center border-t" style="background:#080d12;border-color:#21262d;flex-direction:${lang === "ar" ? "row-reverse" : "row"}">
+      <div>
+        <p class="font-mono- text-[10px] mb-2" style="font-family:'Share Tech Mono',monospace;color:#8b949e">${tr.sign}</p>
+        <div class="w-48 h-0.5" style="background:#2dd4bf"></div>
+        <input class="contrat-field mt-2 text-xs" id="c-sign" placeholder="${lang === "ar" ? "التوقيع أو الأحرف الأولى" : "Signature ou initiales"}" value="${data.sign || ""}" style="max-width:160px">
+      </div>
+      <div class="flex gap-3">
+        <button onclick="saveContrat()" class="btn-primary">${tr.save}</button>
+        <button onclick="printContrat()" class="btn-teal">${tr.print}</button>
+      </div>
+    </div>
+  </div>`;
+      }
+
+      // TOOL 05 — TABLEAU DE BORD IMPACT
+      // ══════════════════════════════════════════════════════
+      function dashboard() {
+        const data = load("dashboard");
+        const periods_fr = ["T0", "S04", "S06", "T3"];
+        const periods_ar = ["T0", "أ4", "أ6", "T3"];
+        const periods = lang === "ar" ? periods_ar : periods_fr;
+        const periods_keys = ["T0", "S04", "S06", "T3"];
+        const tr =
+          lang === "ar"
+            ? {
+                num: "الأداة 05 / 07",
+                title: "لوحة قيادة",
+                accent: "الأثر",
+                desc: "القياس السلوكي والتشغيلي · T0 → أسبوع4 → أسبوع6 → T3",
+                indic: "المؤشر",
+                evolution: "التطور T0 → T3",
+                save: "حفظ",
+                calc: "احتساب التطور",
+                rows: [
+                  { k: "R", label: "R: الاعتراف", unit: "/ 10" },
+                  { k: "E", label: "E: العدالة", unit: "/ 10" },
+                  { k: "S", label: "S: المعنى", unit: "/ 10" },
+                  { k: "EA", label: "E: الانخراط / التعلم", unit: "/ 10" },
+                  { k: "T", label: "T: الحدود / الاستقلالية", unit: "/ 10" },
+                  { k: "NR", label: "N: عدد RELAA / أسبوع", unit: "× / أسبوع" },
+                  { k: "AB", label: "الغياب", unit: "%" },
+                  { k: "CF", label: "النزاعات المكتشفة", unit: "× / شهر" },
+                ],
+                score_chart: "تطور متوسط الدرجة (R,E,S,E,T)",
+                relaa_chart: "عدد RELAA لكل فترة",
+              }
+            : {
+                num: "OUTIL 05 / 07",
+                title: "TABLEAU DE BORD",
+                accent: "IMPACT",
+                desc: "Mesure comportementale et opérationnelle · T0 → S04 → S06 → T3",
+                indic: "INDICATEUR",
+                evolution: "ÉVOLUTION T0 → T3",
+                save: "ENREGISTRER",
+                calc: "CALCULER ÉVOLUTION",
+                rows: [
+                  { k: "R", label: "R: Reconnaissance", unit: "/ 10" },
+                  { k: "E", label: "E: Équité", unit: "/ 10" },
+                  { k: "S", label: "S: Sens", unit: "/ 10" },
+                  {
+                    k: "EA",
+                    label: "E: Engagement / Apprentissage",
+                    unit: "/ 10",
+                  },
+                  { k: "T", label: "T: Territoire / Autonomie", unit: "/ 10" },
+                  { k: "NR", label: "N: Nb RELAA / semaine", unit: "× / sem" },
+                  { k: "AB", label: "Absentéisme", unit: "%" },
+                  { k: "CF", label: "Conflits détectés", unit: "× / mois" },
+                ],
+                score_chart: "ÉVOLUTION DU SCORE MOYEN (R,E,S,E,T)",
+                relaa_chart: "NOMBRE DE RELAA PAR PÉRIODE",
+              };
+        const c = document.getElementById("tool-content");
+        c.innerHTML = `
+  <div class="mb-8">
+    <p class="font-mono- text-xs mb-1" style="font-family:'Share Tech Mono',monospace;color:#f97316;letter-spacing:.2em">${tr.num}</p>
+    <h2 class="font-cond text-4xl font-black uppercase text-white">${tr.title} <span style="color:#f97316">${tr.accent}</span></h2>
+    <p class="mt-1" style="color:#8b949e;font-size:13px">${tr.desc}</p>
+  </div>
+  <div class="grid lg:grid-cols-2 gap-8">
+    <div>
+      <div class="rounded-2xl overflow-hidden border" style="border-color:#30363d">
+        <table class="w-full" style="border-collapse:collapse">
+          <thead>
+            <tr style="background:#080d12">
+              <th class="text-${lang === "ar" ? "right" : "left"} p-3 font-mono- text-xs" style="font-family:'Share Tech Mono',monospace;color:#8b949e;border-bottom:1px solid #21262d">${tr.indic}</th>
+              ${periods.map((p, i) => `<th class="p-3 font-mono- text-xs" style="font-family:'Share Tech Mono',monospace;color:${i === 0 ? "#8b949e" : i === 3 ? "#2dd4bf" : "#f97316"};border-bottom:1px solid #21262d">${p}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${tr.rows
+              .map(
+                (row, ri) => `
+            <tr style="background:${ri % 2 === 0 ? "#161b22" : "#0d1117"};border-bottom:1px solid #21262d20">
+              <td class="p-3 text-xs ${lang === "ar" ? "text-right" : ""}" style="color:#f0f6fc">${row.label}</td>
+              ${periods_keys
+                .map(
+                  (p) => `
+              <td class="p-2 text-center">
+                <input class="kpi-input" type="number" min="0" step="0.1"
+                       value="${data[row.k + "_" + p] || ""}" placeholder="—"
+                       oninput="updateDash('${row.k}','${p}',this.value)">
+              </td>`,
+                )
+                .join("")}
+            </tr>`,
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+      <div class="flex gap-3 mt-4 flex-wrap">
+        <button onclick="saveDash()" class="btn-primary">${tr.save}</button>
+        <button onclick="calcEvolution()" class="btn-teal">${tr.calc}</button>
+      </div>
+      <div id="evolution-panel" class="mt-4 hidden rounded-xl p-4 border" style="background:#041a18;border-color:#2dd4bf33">
+        <p class="font-mono- text-xs mb-3" style="font-family:'Share Tech Mono',monospace;color:#2dd4bf;letter-spacing:.15em">${tr.evolution}</p>
+        <div id="evolution-content" class="space-y-2"></div>
+      </div>
+    </div>
+    <div class="space-y-4">
+      <div class="rounded-2xl p-5 border" style="background:#161b22;border-color:#30363d">
+        <p class="font-mono- text-xs mb-3" style="font-family:'Share Tech Mono',monospace;color:#8b949e">${tr.score_chart}</p>
+        <canvas id="scoreChart" height="120"></canvas>
+      </div>
+      <div class="rounded-2xl p-5 border" style="background:#161b22;border-color:#30363d">
+        <p class="font-mono- text-xs mb-3" style="font-family:'Share Tech Mono',monospace;color:#8b949e">${tr.relaa_chart}</p>
+        <canvas id="relaaChart" height="100"></canvas>
+      </div>
+    </div>
+  </div>`;
+        setTimeout(() => initDashCharts(), 50);
+      }
+// Mettre à jour le texte du bouton retour selon la langue
+function updateBackButtonText() {
+  const buttons = document.querySelectorAll('[id*="back-to-main"], [id*="back-floating"], [id*="back-footer"]');
+  buttons.forEach(btn => {
+    if (btn) {
+      const text = lang === "ar" ? "← العودة إلى العرض" : "← RETOUR À L'OFFRE";
+      btn.textContent = text;
+    }
+  });
+}
+      // TOOL 06 — SCRIPTS MANAGÉRIAUX (FEEDBACK)
+      // ══════════════════════════════════════════════════════
+      function feedback() {
+        const tr =
+          lang === "ar"
+            ? {
+                num: "الأداة 06 / 07",
+                title: "النصوص",
+                accent: "الإدارية",
+                desc: "أدخل الحقول · ولِّد النص · انسخه",
+                gen: "توليد",
+                copy: "نسخ",
+              }
+            : {
+                num: "OUTIL 06 / 07",
+                title: "SCRIPTS",
+                accent: "MANAGÉRIAUX",
+                desc: "Saisissez les champs · Générez le script · Copiez-le",
+                gen: "GÉNÉRER",
+                copy: "COPIER",
+              };
+        const scripts =
+          lang === "ar"
+            ? [
+                {
+                  id: "fp",
+                  color: "#2dd4bf",
+                  title: "التغذية الراجعة الإيجابية",
+                  sub: "الانخراط · الاعتراف",
+                  fields: [
+                    {
+                      id: "situation",
+                      label: "الموقف",
+                      ph: "صِف اللحظة الدقيقة التي لاحظتها...",
+                    },
+                    {
+                      id: "comportement",
+                      label: "السلوك",
+                      ph: "سمِّ الفعل الدقيق (ليس الشخص)...",
+                    },
+                    {
+                      id: "impact",
+                      label: "التأثير",
+                      ph: "الأثر الإيجابي على الفريق / النتائج / العميل...",
+                    },
+                  ],
+                  template: (d) =>
+                    `"${d.situation || "[الموقف]"}\nما لاحظته هو ${d.comportement || "[السلوك]"}.\nتأثيره على الفريق هو ${d.impact || "[التأثير]"}.\nشكراً، واصل على هذا النهج!"`,
+                },
+                {
+                  id: "rm",
+                  color: "#f97316",
+                  title: "إعادة التأطير بدون تهديد",
+                  sub: "الاعتراف · الحدود",
+                  fields: [
+                    {
+                      id: "observation",
+                      label: "الملاحظة (حقيقة محايدة)",
+                      ph: "ما لاحظته موضوعياً...",
+                    },
+                    {
+                      id: "questionnement",
+                      label: "التساؤل",
+                      ph: "ما كان هدفك / تصورك؟...",
+                    },
+                    {
+                      id: "cadre",
+                      label: "الإطار الجديد",
+                      ph: "للمضي قدماً، أقترح أن...",
+                    },
+                  ],
+                  template: (d) =>
+                    `"${d.observation || "[حقيقة ملاحظة]"}\nما كان هدفك في هذا الموقف؟\n${d.questionnement || "[التساؤل]"}\nللمضي قدماً، أقترح أن ${d.cadre || "[الإطار الجديد]"}."`,
+                },
+                {
+                  id: "ve",
+                  color: "#2dd4bf",
+                  title: "تقدير الخطأ",
+                  sub: "المعنى · التعلم",
+                  fields: [
+                    {
+                      id: "erreur",
+                      label: "الخطأ المُحدَّد",
+                      ph: "الفعل أو القرار الذي سبّب المشكلة...",
+                    },
+                    {
+                      id: "analyse",
+                      label: "التحليل الجماعي",
+                      ph: "ما الذي حدث؟ ماذا تعلمنا؟...",
+                    },
+                    {
+                      id: "action",
+                      label: "الإجراء التصحيحي",
+                      ph: "كيف نكيّف نهجنا في المستقبل؟...",
+                    },
+                  ],
+                  template: (d) =>
+                    `"لنراجع معاً ما حدث مع ${d.erreur || "[الخطأ]"}.\n${d.analyse || "[التحليل]"}.\nكيف نكيّف نهجنا؟ ${d.action || "[الإجراء]"}."`,
+                },
+                {
+                  id: "bm",
+                  color: "#f97316",
+                  title: "إحاطة RESET الصباحية",
+                  sub: "3 دقائق · يومياً",
+                  fields: [
+                    {
+                      id: "focus",
+                      label: "الأولوية الأولى لليوم",
+                      ph: "الأولوية المطلقة لهذا اليوم...",
+                    },
+                    {
+                      id: "levier",
+                      label: "الرافعة RESET المُفعَّلة",
+                      ph: "R / E / S / E / T — لماذا اليوم...",
+                    },
+                    {
+                      id: "action",
+                      label: "الإجراء الدقيق الملموس",
+                      ph: "الخطوة الملموسة التي تتعهد بها...",
+                    },
+                  ],
+                  template: (d) =>
+                    `[إحاطة RESET - ${new Date().toLocaleDateString("ar-TN")}]\nأولوية اليوم: ${d.focus || "[الأولوية]"}\nرافعة RESET: ${d.levier || "[الرافعة]"}\nالإجراء الدقيق: ${d.action || "[الإجراء]"}`,
+                },
+              ]
+            : [
+                {
+                  id: "fp",
+                  color: "#2dd4bf",
+                  title: "FEEDBACK POSITIF",
+                  sub: "Engagement · Reconnaissance",
+                  fields: [
+                    {
+                      id: "situation",
+                      label: "SITUATION",
+                      ph: "Décrivez le moment précis observé…",
+                    },
+                    {
+                      id: "comportement",
+                      label: "COMPORTEMENT",
+                      ph: "Nommez l'action précise (pas la personne)…",
+                    },
+                    {
+                      id: "impact",
+                      label: "IMPACT",
+                      ph: "Effet positif sur l'équipe / résultats / client…",
+                    },
+                  ],
+                  template: (d) =>
+                    `"${d.situation || "[Situation]"}\nCe que j'ai observé c'est ${d.comportement || "[comportement]"}.\nL'impact sur l'équipe c'est ${d.impact || "[impact]"}.\nMerci de continuer comme ça !"`,
+                },
+                {
+                  id: "rm",
+                  color: "#f97316",
+                  title: "RECADRAGE SANS MENACE",
+                  sub: "Reconnaissance · Équité",
+                  fields: [
+                    {
+                      id: "observation",
+                      label: "OBSERVATION (FAIT NEUTRE)",
+                      ph: "Ce que vous avez observé objectivement…",
+                    },
+                    {
+                      id: "questionnement",
+                      label: "QUESTIONNEMENT",
+                      ph: "Quel était ton objectif / ta perception ?…",
+                    },
+                    {
+                      id: "cadre",
+                      label: "NOUVEAU CADRE",
+                      ph: "Pour la suite, je propose que…",
+                    },
+                  ],
+                  template: (d) =>
+                    `"${d.observation || "[Fait observé]"}\nQuel était ton objectif dans cette situation ?\n${d.questionnement || "[Questionnement]"}\nPour la suite, je propose que ${d.cadre || "[nouveau cadre]"}."`,
+                },
+                {
+                  id: "ve",
+                  color: "#2dd4bf",
+                  title: "VALORISATION DE L'ERREUR",
+                  sub: "Erreur · Sens",
+                  fields: [
+                    {
+                      id: "erreur",
+                      label: "ERREUR IDENTIFIÉE",
+                      ph: "L'action ou décision qui a posé problème…",
+                    },
+                    {
+                      id: "analyse",
+                      label: "ANALYSE COLLECTIVE",
+                      ph: "Qu'est-ce qui s'est passé ? Qu'avons-nous appris ?…",
+                    },
+                    {
+                      id: "action",
+                      label: "ACTION CORRECTRICE",
+                      ph: "Comment adapter notre approche pour la suite ?…",
+                    },
+                  ],
+                  template: (d) =>
+                    `"Reprenons ensemble ce qui s'est passé avec ${d.erreur || "[l'erreur]"}.\n${d.analyse || "[Analyse]"}.\nComment on adapte notre approche ? ${d.action || "[Action correctrice]"}."`,
+                },
+                {
+                  id: "bm",
+                  color: "#f97316",
+                  title: "BRIEF RESET DU MATIN",
+                  sub: "3 minutes · Quotidien",
+                  fields: [
+                    {
+                      id: "focus",
+                      label: "FOCUS JOUR (PRIORITÉ N°1)",
+                      ph: "La priorité absolue de la journée…",
+                    },
+                    {
+                      id: "levier",
+                      label: "LEVIER RESET ACTIVÉ",
+                      ph: "R / E / S / E / T — pourquoi aujourd'hui…",
+                    },
+                    {
+                      id: "action",
+                      label: "MICRO-ACTION CONCRÈTE",
+                      ph: "Le pas concret que vous vous engagez à faire…",
+                    },
+                  ],
+                  template: (d) =>
+                    `[Brief RESET - ${new Date().toLocaleDateString("fr-FR")}]\nFocus Jour : ${d.focus || "[Priorité n°1]"}\nLevier RESET : ${d.levier || "[Levier]"}\nMicro-Action : ${d.action || "[Action]"}`,
+                },
+              ];
+        const c = document.getElementById("tool-content");
+        const data = load("feedback");
+        window._fbScripts = scripts;
+        c.innerHTML = `
+  <div class="mb-8">
+    <p class="font-mono- text-xs mb-1" style="font-family:'Share Tech Mono',monospace;color:#2dd4bf;letter-spacing:.2em">${tr.num}</p>
+    <h2 class="font-cond text-4xl font-black uppercase text-white">${tr.title} <span style="color:#2dd4bf">${tr.accent}</span></h2>
+    <p class="mt-1" style="color:#8b949e;font-size:13px">${tr.desc}</p>
+  </div>
+  <div class="grid md:grid-cols-2 gap-5">
+    ${scripts
+      .map(
+        (s) => `
+    <div class="rounded-2xl border overflow-hidden" style="border-color:#30363d">
+      <div class="px-6 py-4 border-b flex items-center gap-3" style="background:#080d12;border-color:${s.color}33;flex-direction:${lang === "ar" ? "row-reverse" : "row"}">
+        <span style="color:${s.color}">${s.id === "fp" ? ICONS.feedback.replace('width="42" height="42"', 'width="22" height="22"') : '<span style=\"color:' + s.color + ';font-size:16px\">' + (s.id === "rm" ? "◎" : s.id === "ve" ? "✦" : "◷") + "</span>"}</span>
+        <div style="text-align:${lang === "ar" ? "right" : "left"}">
+          <h3 class="font-cond font-bold text-sm uppercase tracking-wider" style="color:${s.color}">${s.title}</h3>
+          <p class="text-xs" style="color:#8b949e">${s.sub}</p>
+        </div>
+      </div>
+      <div class="p-5" style="background:#161b22">
+        <div class="space-y-3 mb-4">
+          ${s.fields
+            .map(
+              (f) => `
+          <div>
+            <p class="font-mono- text-[9px] mb-1" style="font-family:'Share Tech Mono',monospace;color:#8b949e;letter-spacing:.15em;text-align:${lang === "ar" ? "right" : "left"}">${f.label}</p>
+            <textarea rows="2" placeholder="${f.ph}" id="fb-${s.id}-${f.id}"
+                      class="w-full rounded-lg p-2 text-xs resize-none"
+                      style="background:#080d12;border:1px solid #30363d;color:#f0f6fc;outline:none;font-family:${lang === "ar" ? "Cairo" : "Barlow"},sans-serif;text-align:${lang === "ar" ? "right" : "left"}"
+                      oninput="saveFbField('${s.id}','${f.id}',this.value)">${data[s.id + "_" + f.id] || ""}</textarea>
+          </div>`,
+            )
+            .join("")}
+        </div>
+        <div id="gen-${s.id}" class="script-box mb-3 hidden" style="text-align:${lang === "ar" ? "right" : "left"}"></div>
+        <div class="flex gap-2">
+          <button onclick="generateScript('${s.id}')" class="btn-primary flex-1" style="font-size:11px">${tr.gen}</button>
+          <button onclick="copyScript('${s.id}')" class="btn-teal" style="font-size:11px">${tr.copy}</button>
+        </div>
+      </div>
+    </div>`,
+      )
+      .join("")}
+  </div>`;
+      }
+
+      // TOOL 07 — CALENDRIER 30 JOURS
+      // ══════════════════════════════════════════════════════
+      function routines() {
+        const data = load("routines");
+        const tr =
+          lang === "ar"
+            ? {
+                num: "الأداة 07 / 07",
+                title: "تقويم",
+                accent: "30 يومًا",
+                desc: "ترسيخ العادات الجديدة RESET · تسجيل يومي",
+                guide_title: "دليل الروتين اليومي",
+                cal_title: "تقويم الترسيخ — 30 يومًا",
+                days: ["الإ", "الث", "الأ", "الخ", "الج", "الس", "الأح"],
+                weeks: ["الأ", "الث", "الث", "الر"],
+                reset: "إعادة ضبط",
+                rate_label: "معدل الترسيخ",
+                routines: [
+                  {
+                    title: "إحاطة RESET الصباحية",
+                    sub: "3 دقائق · كل يوم",
+                    checks: [
+                      "أولوية اليوم",
+                      "الطاقة",
+                      "الرافعة RESET",
+                      "الإجراء الدقيق",
+                    ],
+                  },
+                  {
+                    title: "التغذية الراجعة / التقدير",
+                    sub: "نهاية الوردية · يومياً",
+                    checks: ["تغذية راجعة مُعطاة", "احتفال", "خاتمة إيجابية"],
+                  },
+                  {
+                    title: "التفويض الدقيق",
+                    sub: "مرة واحدة/أسبوع",
+                    checks: [
+                      "النطاق محدد",
+                      "الهدف واضح",
+                      "الأجل مضبوط",
+                      "الثقة ممنوحة",
+                    ],
+                  },
+                  {
+                    title: "مراجعة RELAA السريعة",
+                    sub: "عند الحاجة · عند حادثة",
+                    checks: [
+                      "الموقف مُسمَّى",
+                      "العاطفة مُعترَف بها",
+                      "تحليل مُنجَز",
+                      "قرار مُتخَذ",
+                    ],
+                  },
+                ],
+              }
+            : {
+                num: "OUTIL 07 / 07",
+                title: "CALENDRIER",
+                accent: "30 JOURS",
+                desc: "Ancrage des nouvelles habitudes RESET · Cochage quotidien",
+                guide_title: "GUIDE DES ROUTINES",
+                cal_title: "CALENDRIER D'ANCRAGE — 30 JOURS",
+                days: ["L", "M", "M", "J", "V", "S", "D"],
+                weeks: ["S1", "S2", "S3", "S4"],
+                reset: "RÉINITIALISER",
+                rate_label: "Taux d'ancrage",
+                routines: [
+                  {
+                    title: "Brief RESET du matin",
+                    sub: "3 min · Chaque jour",
+                    checks: [
+                      "Focus jour",
+                      "Énergie",
+                      "Levier RESET",
+                      "Micro-action",
+                    ],
+                  },
+                  {
+                    title: "Feedback / Valorisation",
+                    sub: "Fin de poste · Quotidien",
+                    checks: [
+                      "Feedback donné",
+                      "Célébration",
+                      "Clôture positive",
+                    ],
+                  },
+                  {
+                    title: "Micro-délégation",
+                    sub: "1× par semaine",
+                    checks: [
+                      "Périmètre défini",
+                      "Objectif clair",
+                      "Délai fixé",
+                      "Confiance accordée",
+                    ],
+                  },
+                  {
+                    title: "Débrief RELAA tension",
+                    sub: "Si besoin · Sur incident",
+                    checks: [
+                      "Situation nommée",
+                      "Émotion reconnue",
+                      "Analyse faite",
+                      "Action décidée",
+                    ],
+                  },
+                ],
+              };
+        const checked = Object.values(data).filter(Boolean).length;
+        const pct = Math.round((checked / 30) * 100);
+        const c = document.getElementById("tool-content");
+        c.innerHTML = `
+  <div class="mb-8">
+    <p class="font-mono- text-xs mb-1" style="font-family:'Share Tech Mono',monospace;color:#f97316;letter-spacing:.2em">${tr.num}</p>
+    <h2 class="font-cond text-4xl font-black uppercase text-white">${tr.title} <span style="color:#f97316">${tr.accent}</span></h2>
+    <p class="mt-1" style="color:#8b949e;font-size:13px">${tr.desc}</p>
+  </div>
+  <div class="grid lg:grid-cols-3 gap-8">
+    <div class="space-y-3">
+      <p class="font-mono- text-xs mb-4" style="font-family:'Share Tech Mono',monospace;color:#f97316;letter-spacing:.15em">${tr.guide_title}</p>
+      ${tr.routines
+        .map(
+          (r, ri) => `
+      <div class="rounded-xl p-4 border" style="background:#161b22;border-color:#30363d">
+        <div class="flex items-center gap-3 mb-3" style="flex-direction:${lang === "ar" ? "row-reverse" : "row"}">
+          <span style="color:#f97316;font-size:16px">${["◉", "◈", "◎", "⚡"][ri]}</span>
+          <div style="text-align:${lang === "ar" ? "right" : "left"}">
+            <h4 class="font-cond font-bold text-sm uppercase text-white">${r.title}</h4>
+            <p class="text-xs" style="color:#8b949e">${r.sub}</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2" style="justify-content:${lang === "ar" ? "flex-end" : "flex-start"}">
+          ${r.checks.map((ch) => `<span class="text-xs px-2 py-0.5 rounded" style="background:#21262d;color:#8b949e;font-family:${lang === "ar" ? "Cairo" : "Share Tech Mono"},monospace">[ ] ${ch}</span>`).join("")}
+        </div>
+      </div>`,
+        )
+        .join("")}
+    </div>
+    <div class="lg:col-span-2">
+      <div class="flex items-center justify-between mb-4">
+        <p class="font-mono- text-xs" style="font-family:'Share Tech Mono',monospace;color:#f97316;letter-spacing:.15em">${tr.cal_title}</p>
+        <div class="flex items-center gap-2">
+          <div class="h-1.5 w-20 rounded" style="background:#21262d">
+            <div class="h-1.5 rounded" style="background:linear-gradient(90deg,#f97316,#2dd4bf);width:${pct}%"></div>
+          </div>
+          <span class="font-mono- text-xs" style="font-family:'Share Tech Mono',monospace;color:${pct >= 80 ? "#2dd4bf" : pct >= 50 ? "#f97316" : "#8b949e"}">${pct}%</span>
+        </div>
+      </div>
+      <div class="rounded-2xl overflow-hidden border" style="border-color:#30363d">
+        <div class="grid" style="grid-template-columns:60px repeat(7,1fr);background:#080d12">
+          <div class="p-2 border-b border-r" style="border-color:#21262d"></div>
+          ${tr.days.map((d) => `<div class="p-2 text-center border-b border-r text-xs font-bold" style="border-color:#21262d;font-family:'Share Tech Mono',monospace;color:#8b949e">${d}</div>`).join("")}
+        </div>
+        ${[0, 1, 2, 3]
+          .map(
+            (week) => `
+        <div class="grid" style="grid-template-columns:60px repeat(7,1fr)">
+          <div class="p-2 flex items-center justify-center border-r border-b" style="border-color:#21262d;background:#0d1117">
+            <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#8b949e">${tr.weeks[week] || "S" + (week + 1)}</span>
+          </div>
+          ${Array.from({ length: 7 }, (_, d) => {
+            const day = week * 7 + d + 1;
+            if (day > 30)
+              return '<div class="border-r border-b" style="border-color:#21262d;background:#080d12"></div>';
+            const isChecked = data[day];
+            return (
+              '<div onclick="toggleDay30(' +
+              day +
+              ')" class="day-cell border-r border-b flex items-center justify-center text-xs font-bold ' +
+              (isChecked ? "checked" : "") +
+              '" style="border-color:#21262d;background:' +
+              (isChecked ? "#041a18" : "#0d1117") +
+              ";color:" +
+              (isChecked ? "#2dd4bf" : "#30363d") +
+              ';min-height:40px;font-family:Share Tech Mono,monospace">' +
+              (isChecked ? "✓" : day) +
+              "</div>"
+            );
+          }).join("")}
+        </div>`,
+          )
+          .join("")}
+      </div>
+      <div class="flex justify-between items-center mt-4">
+        <div class="text-sm" style="color:#8b949e">
+          ${tr.rate_label} : <span class="font-bold" style="color:#f97316">${checked} / 30 ${lang === "ar" ? "يومًا" : " jours"}</span>
+        </div>
+        <button onclick="resetCalendar()" class="btn-ghost" style="font-size:9px">${tr.reset}</button>
+      </div>
+    </div>
+  </div>`;
+      }
+
+      // ══════════════════════════════════════════════════════
+      // HELPERS
+      // ══════════════════════════════════════════════════════
+      function calcEvolution() {
+        const d = load("dashboard");
+        const rows_fr = [
+          { k: "R", label: "Reconnaissance" },
+          { k: "E", label: "Équité" },
+          { k: "S", label: "Sens" },
+          { k: "EA", label: "Engagement/Apprentissage" },
+          { k: "T", label: "Territoire/Autonomie" },
+        ];
+        const rows_ar = [
+          { k: "R", label: "الاعتراف" },
+          { k: "E", label: "العدالة" },
+          { k: "S", label: "المعنى" },
+          { k: "EA", label: "الانخراط/التعلم" },
+          { k: "T", label: "الحدود/الاستقلالية" },
+        ];
+        const rows = lang === "ar" ? rows_ar : rows_fr;
+        const panel = document.getElementById("evolution-panel");
+        const ec = document.getElementById("evolution-content");
+        panel.classList.remove("hidden");
+        ec.innerHTML = rows
+          .map((row) => {
+            const t0 = d[row.k + "_T0"] || 0,
+              t3 = d[row.k + "_T3"] || 0;
+            const diff = t3 - t0,
+              pct = t0 > 0 ? Math.round((diff / t0) * 100) : 0;
+            const positive = diff >= 0;
+            return `<div class="flex justify-between items-center py-1 border-b" style="border-color:#21262d30">
+      <span class="text-xs" style="color:#f0f6fc">${row.label}</span>
+      <span class="font-mono- text-xs font-bold" style="font-family:'Share Tech Mono',monospace;color:${positive ? "#2dd4bf" : "#f97316"}">
+        ${positive ? "+" : ""}${diff.toFixed(1)} pts (${positive ? "+" : ""}${pct}%)
+      </span>
+    </div>`;
+          })
+          .join("");
+      }
+
+      // ── RADAR ──────────────────────────────────────────────────
+      function updateRadar(k, val, color, input) {
+        const v = parseInt(val);
+        const el = document.getElementById("val-" + k);
+        if (el) el.textContent = v;
+        const pct = ((v - 1) / 9) * 100;
+        input.style.setProperty("--pct", pct + "%");
+        if (radarChartInstance) {
+          const idx = L().findIndex((l) => l.k === k);
+          if (idx >= 0) radarChartInstance.data.datasets[0].data[idx] = v;
+          radarChartInstance.update();
+          const total = L().reduce(
+            (s, l, i) => s + (radarChartInstance.data.datasets[0].data[i] || 0),
+            0,
+          );
+          const ts = document.getElementById("total-score");
+          if (ts)
+            ts.innerHTML =
+              total +
+              ' <span class="text-base font-normal" style="color:#8b949e">/ 50</span>';
+        }
+      }
+
+      function saveRadar() {
+        if (!radarChartInstance) return;
+        const d = {};
+        L().forEach(
+          (l, i) => (d[l.k] = radarChartInstance.data.datasets[0].data[i]),
+        );
+        save("radar", d);
+        notify(lang === "ar" ? "تم حفظ الرادار ✓" : "Radar enregistré ✓");
+      }
+
+      function resetRadar() {
+        L().forEach((l) => {
+          const inp = document.querySelector(`input[oninput*="'${l.k}'"]`);
+          if (inp) {
+            inp.value = 5;
+            updateRadar(l.k, 5, l.color, inp);
+          }
+        });
+      }
+
+      // ── RELAA ───────────────────────────────────────────────────
+      function toggleStep(i) {
+        const done = load("relaa_done");
+        done[i] = !done[i];
+        save("relaa_done", done);
+        relaa();
+      }
+
+      function resetRelaa() {
+        save("relaa_done", {});
+        relaa();
+      }
+
+      // ── FICHES ──────────────────────────────────────────────────
+      function selectFiche(i) {
+        save("fiches_sel", { i });
+        fiches();
+      }
+
+      // ── CONTRAT ─────────────────────────────────────────────────
+      function saveContrat() {
+        const d = {
+          nom: document.getElementById("c-nom").value,
+          date: document.getElementById("c-date").value,
+          sign: document.getElementById("c-sign").value,
+        };
+        [1, 2, 3].forEach((n) => {
+          d["levier" + n] = document.getElementById("c-levier" + n).value;
+          d["eng" + n] = document.getElementById("c-eng" + n).value;
+          d["kpi" + n] = document.getElementById("c-kpi" + n).value;
+        });
+        save("contrat", d);
+        notify(lang === "ar" ? "تم حفظ العقد ✓" : "Contrat sauvegardé ✓");
+      }
+
+      function printContrat() {
+        saveContrat();
+        window.print();
+      }
+
+      // ── DASHBOARD ───────────────────────────────────────────────
+      function updateDash(k, p, val) {
+        const d = load("dashboard");
+        d[k + "_" + p] = parseFloat(val) || 0;
+        save("dashboard", d);
+      }
+
+      function saveDash() {
+        notify(
+          lang === "ar"
+            ? "تم حفظ لوحة القيادة ✓"
+            : "Tableau de bord sauvegardé ✓",
+        );
+        initDashCharts();
+      }
+
+      function initDashCharts() {
+        const d = load("dashboard");
+        const periods = ["T0", "S04", "S06", "T3"];
+        const levers = ["R", "E", "S", "EA", "T"];
+        const avgScores = periods.map((p) => {
+          const vals = levers.map((k) => d[k + "_" + p]).filter((v) => v > 0);
+          return vals.length
+            ? vals.reduce((a, b) => a + b, 0) / vals.length
+            : null;
+        });
+        const relaaVals = periods.map((p) => d["NR_" + p] || null);
+        const labels = lang === "ar" ? ["T0", "أ4", "أ6", "T3"] : periods;
+        if (dashChartScore) {
+          dashChartScore.destroy();
+          dashChartScore = null;
+        }
+        if (dashChartRelaa) {
+          dashChartRelaa.destroy();
+          dashChartRelaa = null;
+        }
+        const sc = document.getElementById("scoreChart");
+        if (sc)
+          dashChartScore = new Chart(sc, {
+            type: "line",
+            data: {
+              labels,
+              datasets: [
+                {
+                  data: avgScores,
+                  backgroundColor: "rgba(249,115,22,.15)",
+                  borderColor: "#f97316",
+                  borderWidth: 2,
+                  pointBackgroundColor: "#f97316",
+                  pointRadius: 5,
+                  fill: true,
+                  tension: 0.4,
+                },
+              ],
+            },
+            options: {
+              plugins: { legend: { display: false } },
+              scales: {
+                x: {
+                  grid: { color: "rgba(255,255,255,.04)" },
+                  ticks: {
+                    color: "#8b949e",
+                    font: { family: "Share Tech Mono", size: 10 },
+                  },
+                },
+                y: {
+                  min: 0,
+                  max: 10,
+                  grid: { color: "rgba(255,255,255,.04)" },
+                  ticks: {
+                    color: "#8b949e",
+                    font: { family: "Share Tech Mono", size: 10 },
+                  },
+                },
+              },
+            },
+          });
+        const rc = document.getElementById("relaaChart");
+        if (rc)
+          dashChartRelaa = new Chart(rc, {
+            type: "bar",
+            data: {
+              labels,
+              datasets: [
+                {
+                  data: relaaVals,
+                  backgroundColor: [
+                    "rgba(45,212,191,.3)",
+                    "rgba(45,212,191,.5)",
+                    "rgba(45,212,191,.7)",
+                    "rgba(45,212,191,1)",
+                  ],
+                  borderColor: "#2dd4bf",
+                  borderWidth: 1,
+                  borderRadius: 4,
+                },
+              ],
+            },
+            options: {
+              plugins: { legend: { display: false } },
+              scales: {
+                x: {
+                  grid: { color: "rgba(255,255,255,.04)" },
+                  ticks: {
+                    color: "#8b949e",
+                    font: { family: "Share Tech Mono", size: 10 },
+                  },
+                },
+                y: {
+                  min: 0,
+                  grid: { color: "rgba(255,255,255,.04)" },
+                  ticks: {
+                    color: "#8b949e",
+                    font: { family: "Share Tech Mono", size: 10 },
+                  },
+                },
+              },
+            },
+          });
+      }
+
+      // ── FEEDBACK ────────────────────────────────────────────────
+      function saveFbField(scriptId, fieldId, val) {
+        const d = load("feedback");
+        d[scriptId + "_" + fieldId] = val;
+        save("feedback", d);
+      }
+
+      function generateScript(scriptId) {
+        const script =
+          window._fbScripts && window._fbScripts.find((s) => s.id === scriptId);
+        if (!script) return;
+        const d = load("feedback");
+        const fieldData = {};
+        script.fields.forEach(
+          (f) => (fieldData[f.id] = d[scriptId + "_" + f.id] || ""),
+        );
+        const text = script.template(fieldData);
+        const el = document.getElementById("gen-" + scriptId);
+        if (el) {
+          el.textContent = text;
+          el.classList.remove("hidden");
+        }
+      }
+
+      function copyScript(scriptId) {
+        generateScript(scriptId);
+        const el = document.getElementById("gen-" + scriptId);
+        if (!el) return;
+        navigator.clipboard
+          .writeText(el.textContent)
+          .then(() => notify(lang === "ar" ? "تم النسخ ✓" : "Script copié ✓"))
+          .catch(() => {
+            const ta = document.createElement("textarea");
+            ta.value = el.textContent;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+            notify(lang === "ar" ? "تم النسخ ✓" : "Script copié ✓");
+          });
+      }
+
+      // ── ROUTINES ────────────────────────────────────────────────
+      function toggleDay30(day) {
+        const d = load("routines");
+        d[day] = !d[day];
+        save("routines", d);
+        routines();
+      }
+
+      function resetCalendar() {
+        save("routines", {});
+        routines();
+      }
+
+      // ── COPY TEXT ───────────────────────────────────────────────
+      function copyText(text) {
+        navigator.clipboard
+          .writeText(text)
+          .then(() => notify("Copié ✓"))
+          .catch(() => {
+            const ta = document.createElement("textarea");
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+            notify("Copié ✓");
+          });
+      }
+
+      // ══════════════════════════════════════════════════════
+      // INIT
+      // ══════════════════════════════════════════════════════
+      window.onload = () => {
+        renderMenu();
+        updateProgress();
+      };
+    </script>
+  </body>
+</html>
