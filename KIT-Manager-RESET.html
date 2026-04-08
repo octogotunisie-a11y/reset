@@ -2,7 +2,10 @@
 <html lang="fr" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#0d1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>OCTOGO | Kit Manager RESET Interactif</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -84,19 +87,20 @@
         );
       }
       input[type="range"]::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: #f97316;
-        border: 2px solid #0d1117;
-        box-shadow: 0 0 8px rgba(249, 115, 22, 0.5);
-        cursor: pointer;
-        transition: transform 0.15s;
-      }
-      input[type="range"]::-webkit-slider-thumb:hover {
-        transform: scale(1.25);
-      }
+  width: 20px;
+  height: 20px;
+}
+@media (max-width: 768px) {
+  input, select, textarea, button {
+    font-size: 16px !important; /* Empêche le zoom automatique sur iOS */
+  }
+}
+@media (max-width: 768px) {
+  input[type="range"]::-webkit-slider-thumb {
+    width: 28px;
+    height: 28px;
+  }
+}
       .card-tool {
         transition: all 0.2s;
         cursor: pointer;
@@ -325,6 +329,113 @@
           grid-template-columns: 1fr !important;
         }
       }
+      /* AMÉLIORATIONS MOBILE */
+@media (max-width: 768px) {
+  /* Réduction des padding */
+  header, main {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  
+  /* Titres plus petits */
+  h1.font-cond {
+    font-size: 28px !important;
+    line-height: 1.2 !important;
+  }
+  
+  /* Cartes du menu en colonne */
+  .main-grid {
+    gap: 12px !important;
+  }
+  
+  /* Tableau de bord responsive */
+  .kpi-input {
+    width: 55px !important;
+    font-size: 10px !important;
+    padding: 3px 4px !important;
+  }
+  
+  /* Contrat responsive */
+  .contrat-field {
+    font-size: 12px !important;
+  }
+  
+  /* Fiches micro-comportements */
+  .fiche-card {
+    min-width: 70px !important;
+    padding: 8px !important;
+  }
+  
+  /* Tool content padding */
+  #tool-content {
+    padding: 0 4px;
+  }
+  
+  /* Script boxes */
+  .script-box {
+    font-size: 10px !important;
+    padding: 8px !important;
+  }
+  
+  /* Bouton retour flottant */
+  a[href="javascript:history.back()"] {
+    padding: 6px 12px !important;
+    font-size: 10px !important;
+    bottom: 16px !important;
+    left: 16px !important;
+  }
+  
+  /* Notifications */
+  .notif {
+    bottom: 12px !important;
+    right: 12px !important;
+    left: 12px !important;
+    text-align: center;
+  }
+  
+  /* RELAA steps */
+  .step-item {
+    padding: 12px !important;
+    flex-wrap: wrap !important;
+  }
+  
+  /* Calendrier 30 jours */
+  .day-cell {
+    min-height: 35px !important;
+    font-size: 11px !important;
+  }
+  
+  /* Feedback scripts grid */
+  .grid.md\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Progress bar */
+  #global-progress {
+    margin-top: 8px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Très petits écrans */
+  .kpi-input {
+    width: 45px !important;
+  }
+  
+  table th, table td {
+    padding: 6px 2px !important;
+  }
+  
+  .btn-primary, .btn-ghost, .btn-teal {
+    padding: 6px 10px !important;
+    font-size: 10px !important;
+  }
+  
+  .lang-btn {
+    padding: 4px 10px !important;
+    font-size: 10px !important;
+  }
+}
     </style>
   </head>
   <body class="min-h-screen">
